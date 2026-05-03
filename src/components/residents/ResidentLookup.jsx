@@ -1,43 +1,63 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { api } from '@/lib/api';
 import { Search, Loader2 } from 'lucide-react';
 
 export function ResidentLookup({ onSelect, initialValue = '' }) {
   const [search, setSearch] = useState(initialValue);
+  const [prevInitialValue, setPrevInitialValue] = useState(initialValue);
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const selectedRef = useRef(initialValue);
+
+  // Sync state with initialValue prop if it changes
+  if (initialValue !== prevInitialValue) {
+    setSearch(initialValue);
+    setPrevInitialValue(initialValue);
+  }
 
   useEffect(() => {
-    setSearch(initialValue);
+    selectedRef.current = initialValue;
   }, [initialValue]);
 
   useEffect(() => {
-    if (!search || search.length < 2) {
-      setResults([]);
+    if (!search || search.length < 2 || search === selectedRef.current) {
+      if (search !== selectedRef.current) {
+        setResults([]);
+      }
       return;
     }
 
-    // Only search if user hasn't selected a result (search matches initialValue or selected label)
+    let ignore = false;
     const handler = setTimeout(async () => {
       setLoading(true);
       try {
         const data = await api(`/residents?search=${encodeURIComponent(search)}`);
-        setResults(data);
-        setIsOpen(true);
+        if (!ignore) {
+          setResults(data);
+          setIsOpen(true);
+        }
       } catch (err) {
-        console.error('Lookup error:', err);
+        if (!ignore) {
+          console.error('Lookup error:', err);
+        }
       } finally {
-        setLoading(false);
+        if (!ignore) {
+          setLoading(false);
+        }
       }
     }, 400);
 
-    return () => clearTimeout(handler);
+    return () => {
+      ignore = true;
+      clearTimeout(handler);
+    };
   }, [search]);
 
   const handleSelect = (resident) => {
     const fullName = `${resident.first_name} ${resident.surname}`;
+    selectedRef.current = fullName;
     setSearch(fullName);
     setIsOpen(false);
     onSelect(resident);
@@ -51,8 +71,12 @@ export function ResidentLookup({ onSelect, initialValue = '' }) {
           placeholder="Search resident by name..."
           value={search}
           onChange={(e) => {
-            setSearch(e.target.value);
-            if (!e.target.value) setIsOpen(false);
+            const val = e.target.value;
+            setSearch(val);
+            if (val !== selectedRef.current) {
+              selectedRef.current = null;
+            }
+            if (!val) setIsOpen(false);
           }}
           className="pl-9"
           onFocus={() => {
