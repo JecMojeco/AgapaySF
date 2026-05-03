@@ -3,13 +3,17 @@ const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 export const api = async (endpoint, options = {}) => {
   const url = `${BASE_URL}${endpoint}`;
   
+  const headers = { ...options.headers };
+  
+  // Don't set Content-Type if it's FormData, let browser handle it with boundary
+  if (!(options.body instanceof FormData)) {
+    headers['Content-Type'] = headers['Content-Type'] || 'application/json';
+  }
+
   const config = {
     ...options,
     credentials: 'include', // CRITICAL for sessions
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
+    headers,
   };
 
   const response = await fetch(url, config);
