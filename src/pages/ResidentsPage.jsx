@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Search, UserPlus, Edit2, Users, Baby, Activity, Heart, ShieldAlert } from "lucide-react";
 import { ResidentForm } from "@/components/residents/ResidentForm";
 
-export default function ResidentsPage() {
+export function ResidentsPage() {
   const [residents, setResidents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -42,7 +42,7 @@ export default function ResidentsPage() {
         }
       };
       fetchData();
-    };
+    }, 500);
     return () => clearTimeout(timer);
   }, [search, toast]);
 

@@ -38,7 +38,7 @@ export function ResidentForm({ initialData, onSubmit, isLoading }) {
       try {
         const data = await api('/zones');
         setZones(data);
-      } catch (err) {
+      } catch {
         toast({ title: "Error", description: "Failed to fetch zones", variant: "destructive" });
       }
     };
@@ -51,6 +51,23 @@ export function ResidentForm({ initialData, onSubmit, isLoading }) {
         ...initialData,
         birth_date: initialData.birth_date ? initialData.birth_date.split('T')[0] : "",
         zone_id: initialData.zone_id?.toString() || ""
+      });
+    } else {
+      setFormData({
+        surname: "",
+        first_name: "",
+        middle_initial: "",
+        gender: "M",
+        birth_date: "",
+        contact_number: "",
+        family_size: 1,
+        senior_citizen_count: 0,
+        fourPs_member_count: 0,
+        baby_count: 0,
+        infant_count: 0,
+        pregnant_count: 0,
+        pwd_count: 0,
+        zone_id: ""
       });
     }
   }, [initialData]);
