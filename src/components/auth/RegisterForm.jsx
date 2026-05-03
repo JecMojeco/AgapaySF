@@ -1,0 +1,35 @@
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
+export function RegisterForm({ onRegister }) {
+  return (
+    <Card className="w-[350px]">
+      <CardHeader>
+        <CardTitle>Register for AgapaySF</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="name">Full Name</Label>
+          <Input id="name" placeholder="John Doe" />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="contact">Contact Number</Label>
+          <Input id="contact" placeholder="09XXXXXXXXX" />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="password">Password</Label>
+          <Input id="password" type="password" />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="confirmPassword">Confirm Password</Label>
+          <Input id="confirmPassword" type="password" />
+        </div>
+      </CardContent>
+      <CardFooter>
+        <Button className="w-full" onClick={onRegister}>Register</Button>
+      </CardFooter>
+    </Card>
+  );
+}
