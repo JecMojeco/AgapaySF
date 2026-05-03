@@ -1,24 +1,32 @@
 import { NavLink } from "react-router-dom";
 import { LayoutDashboard, Users, FileText, ClipboardList, Calendar, Map, Contact, Building } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
 
 const items = [
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { title: "Residents", href: "/dashboard/residents", icon: Contact },
   { title: "Structures", href: "/dashboard/structures", icon: Building },
-  { title: "Users", href: "/dashboard/users", icon: Users },
-  { title: "Events", href: "/dashboard/events", icon: Calendar },
-  { title: "Zones", href: "/dashboard/zones", icon: Map },
+  { title: "Users", href: "/dashboard/users", icon: Users, roles: ['Admin'] },
+  { title: "Events", href: "/dashboard/events", icon: Calendar, roles: ['Admin'] },
+  { title: "Zones", href: "/dashboard/zones", icon: Map, roles: ['Admin'] },
   { title: "Assessments", href: "/dashboard/assessments", icon: FileText },
   { title: "Evacuations", href: "/dashboard/evacuations", icon: ClipboardList },
 ];
 
 export function Sidebar() {
+  const { user } = useAuth();
+
+  const filteredItems = items.filter(item => {
+    if (!item.roles) return true;
+    return item.roles.includes(user?.role);
+  });
+
   return (
     <aside className="hidden border-r bg-muted/40 md:block md:w-64 lg:w-72">
       <div className="flex h-full flex-col gap-2 p-4">
         <nav className="grid gap-1">
-          {items.map((item) => (
+          {filteredItems.map((item) => (
             <NavLink
               key={item.href}
               to={item.href}

@@ -48,13 +48,13 @@ export default function AssessmentHistoryPage() {
   const fetchData = async () => {
     try {
       const [assessmentsRes, eventsRes, zonesRes] = await Promise.all([
-        api.get('/assessments'),
-        api.get('/events'),
-        api.get('/zones')
+        api('/assessments'),
+        api('/events'),
+        api('/zones')
       ]);
-      setAssessments(assessmentsRes.data);
-      setEvents(eventsRes.data);
-      setZones(zonesRes.data);
+      setAssessments(assessmentsRes);
+      setEvents(eventsRes);
+      setZones(zonesRes);
     } catch (error) {
       console.error('Error fetching data:', error);
       toast({
@@ -89,6 +89,8 @@ export default function AssessmentHistoryPage() {
         return <Badge variant="outline">{level}</Badge>;
     }
   };
+
+  const serverBaseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '');
 
   return (
     <div className="space-y-6">
@@ -202,7 +204,7 @@ export default function AssessmentHistoryPage() {
                           <DialogTrigger asChild>
                             <button className="relative h-10 w-10 rounded-md overflow-hidden hover:opacity-80 transition-opacity border">
                               <img 
-                                src={`http://localhost:5000${a.photo_url}`} 
+                                src={`${serverBaseUrl}${a.photo_url}`} 
                                 alt="Damage preview" 
                                 className="object-cover h-full w-full"
                               />
@@ -214,7 +216,7 @@ export default function AssessmentHistoryPage() {
                             </DialogHeader>
                             <div className="mt-4 overflow-hidden rounded-lg border">
                               <img 
-                                src={`http://localhost:5000${a.photo_url}`} 
+                                src={`${serverBaseUrl}${a.photo_url}`} 
                                 alt="Full size damage" 
                                 className="w-full h-auto"
                               />
