@@ -44,12 +44,12 @@ Each directory will have:
     - Pregnant Members
     - PWDs
 - **Search**: Case-insensitive name search and zone filtering.
-- **Role Access**: Admin/Kagawad/Staff (Full CRUD).
+- **Role Access**: Admin, Kagawad, and Staff (Full CRUD).
 
 ### 2.4 Structure Directory
 - **Fields**: Address, Structure Type (Enum: Residential, Commercial, Agricultural, Industrial), Owner (FK to `RESIDENT`).
 - **Workflow**: Requires selecting a resident from a lookup search.
-- **Role Access**: Admin/Kagawad (Full CRUD), Staff (Read-only).
+- **Role Access**: Admin, Kagawad, and Staff (Full CRUD).
 
 ---
 

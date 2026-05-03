@@ -1,5 +1,5 @@
 const express = require('express');
-const { getPendingUsers, approveUser, rejectUser } = require('../controllers/userController');
+const { getPendingUsers, approveUser, rejectUser, getUsers } = require('../controllers/userController');
 const { requireAuth, requireRole } = require('../middleware/authMiddleware');
 
 const router = express.Router();
@@ -8,6 +8,7 @@ const router = express.Router();
 router.use(requireAuth);
 router.use(requireRole('Admin'));
 
+router.get('/', getUsers);
 router.get('/pending', getPendingUsers);
 router.patch('/:id/approve', approveUser);
 router.patch('/:id/reject', rejectUser);

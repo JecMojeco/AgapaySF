@@ -58,8 +58,30 @@ const rejectUser = async (req, res) => {
   }
 };
 
+const getUsers = async (req, res) => {
+  try {
+    const { role } = req.query;
+    let query = 'SELECT user_id, name, contact_number, role, status FROM "USER"';
+    const params = [];
+
+    if (role) {
+      query += ' WHERE role = $1';
+      params.push(role);
+    }
+
+    query += ' ORDER BY user_id ASC';
+    
+    const result = await db.query(query, params);
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 module.exports = {
   getPendingUsers,
   approveUser,
   rejectUser,
+  getUsers,
 };
