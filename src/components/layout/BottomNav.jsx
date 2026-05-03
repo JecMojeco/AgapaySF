@@ -1,9 +1,10 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Users, FileText, ClipboardList } from "lucide-react";
+import { LayoutDashboard, Users, FileText, ClipboardList, Contact } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const items = [
   { title: "Home", href: "/dashboard", icon: LayoutDashboard },
+  { title: "Residents", href: "/dashboard/residents", icon: Contact },
   { title: "Users", href: "/dashboard/users", icon: Users },
   { title: "Reports", href: "/dashboard/assessments", icon: FileText },
   { title: "Logs", href: "/dashboard/evacuations", icon: ClipboardList },
