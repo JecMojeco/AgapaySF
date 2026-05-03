@@ -54,12 +54,21 @@ const login = async (req, res) => {
     req.session.role = user.role;
     req.session.status = user.status;
 
+    // Fetch zone_id if Kagawad
+    if (user.role === 'Kagawad') {
+      const zoneResult = await db.query('SELECT zone_id FROM BARANGAY_ZONE WHERE assigned_kagawad = $1', [user.user_id]);
+      if (zoneResult.rows.length > 0) {
+        req.session.zone_id = zoneResult.rows[0].zone_id;
+      }
+    }
+
     res.status(200).json({
       message: 'Login successful',
       user: {
         user_id: user.user_id,
         name: user.name,
-        role: user.role
+        role: user.role,
+        zone_id: req.session.zone_id
       }
     });
   } catch (error) {

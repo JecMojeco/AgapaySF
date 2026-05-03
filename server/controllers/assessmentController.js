@@ -22,8 +22,37 @@ exports.createAssessment = async (req, res) => {
 };
 
 exports.getAllAssessments = async (req, res) => {
+  const { role, user_id, zone_id } = req.session;
+
   try {
-    const result = await pool.query('SELECT * FROM ASSESSMENT_REPORT ORDER BY timestamp DESC');
+    let query = `
+      SELECT 
+        ar.*,
+        de.event_name,
+        de.disaster_type,
+        s.address AS structure_address,
+        r.surname || ', ' || r.first_name AS owner_name,
+        bz.zone_name,
+        bz.zone_id,
+        u.name AS reporter_name
+      FROM ASSESSMENT_REPORT ar
+      JOIN DISASTER_EVENT de ON ar.event_id = de.event_id
+      JOIN STRUCTURE s ON ar.structure_id = s.structure_id
+      JOIN RESIDENT r ON s.owner_id = r.resident_id
+      JOIN BARANGAY_ZONE bz ON r.zone_id = bz.zone_id
+      JOIN "USER" u ON ar.user_id = u.user_id
+    `;
+
+    const params = [];
+    if (role === 'Kagawad') {
+      // Kagawad only see their zone
+      query += ` WHERE bz.zone_id = $1`;
+      params.push(zone_id);
+    }
+
+    query += ` ORDER BY ar.timestamp DESC`;
+
+    const result = await pool.query(query, params);
     res.json(result.rows);
   } catch (err) {
     console.error(err);
