@@ -2,12 +2,26 @@ const db = require('../config/db');
 
 const getAllStructures = async (req, res) => {
   try {
-    const result = await db.query(`
+    const { search } = req.query;
+    let query = `
       SELECT s.*, r.surname as owner_surname, r.first_name as owner_first_name
       FROM STRUCTURE s
       JOIN RESIDENT r ON s.owner_id = r.resident_id
-      ORDER BY s.structure_id ASC
-    `);
+    `;
+    const params = [];
+
+    if (search) {
+      query += `
+        WHERE s.address ILIKE $1 
+        OR r.surname ILIKE $1 
+        OR r.first_name ILIKE $1
+      `;
+      params.push(`%${search}%`);
+    }
+
+    query += ` ORDER BY s.structure_id ASC`;
+
+    const result = await db.query(query, params);
     res.status(200).json(result.rows);
   } catch (error) {
     console.error(error);

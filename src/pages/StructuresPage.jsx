@@ -4,11 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Home, Plus, Edit2, Trash2, Building, Store, Factory, Landmark } from "lucide-react";
-import { ResidentLookup } from "@/components/residents/ResidentLookup";
+import { StructureForm } from "@/components/structures/StructureForm";
 
 const STRUCTURE_TYPES = ["Residential", "Commercial", "Agricultural", "Industrial"];
 
@@ -17,13 +14,6 @@ export function StructuresPage() {
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [editingStructure, setEditingStructure] = useState(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    address: "",
-    structure_type: "Residential",
-    owner_id: ""
-  });
-  const [selectedOwner, setSelectedOwner] = useState(null);
   
   const { toast } = useToast();
 
@@ -44,58 +34,13 @@ export function StructuresPage() {
   }, []);
 
   const handleOpenDialog = (structure = null) => {
-    if (structure) {
-      setEditingStructure(structure);
-      setFormData({
-        address: structure.address,
-        structure_type: structure.structure_type,
-        owner_id: structure.owner_id
-      });
-      setSelectedOwner({
-        first_name: structure.owner_first_name,
-        surname: structure.owner_surname,
-        resident_id: structure.owner_id
-      });
-    } else {
-      setEditingStructure(null);
-      setFormData({
-        address: "",
-        structure_type: "Residential",
-        owner_id: ""
-      });
-      setSelectedOwner(null);
-    }
+    setEditingStructure(structure);
     setIsOpen(true);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!formData.owner_id) {
-      toast({ title: "Validation Error", description: "Please select an owner", variant: "destructive" });
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      const method = editingStructure ? 'PUT' : 'POST';
-      const endpoint = editingStructure ? `/structures/${editingStructure.structure_id}` : '/structures';
-      
-      await api(endpoint, {
-        method,
-        body: JSON.stringify(formData)
-      });
-
-      toast({ 
-        title: "Success", 
-        description: `Structure ${editingStructure ? 'updated' : 'created'} successfully` 
-      });
-      setIsOpen(false);
-      fetchStructures();
-    } catch (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handleSuccess = () => {
+    setIsOpen(false);
+    fetchStructures();
   };
 
   const handleDelete = async (id) => {
@@ -191,60 +136,13 @@ export function StructuresPage() {
           <DialogHeader>
             <DialogTitle>{editingStructure ? 'Edit Structure' : 'Add New Structure'}</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="address">Address</Label>
-              <Input
-                id="address"
-                required
-                value={formData.address}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                placeholder="House Number, Street, Zone"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Structure Type</Label>
-              <Select
-                value={formData.structure_type}
-                onValueChange={(value) => setFormData({ ...formData, structure_type: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {STRUCTURE_TYPES.map(type => (
-                    <SelectItem key={type} value={type}>{type}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Owner (Resident)</Label>
-              <ResidentLookup
-                onSelect={(resident) => {
-                  setFormData({ ...formData, owner_id: resident.resident_id });
-                  setSelectedOwner(resident);
-                }}
-                initialValue={selectedOwner ? `${selectedOwner.first_name} ${selectedOwner.surname}` : ''}
-              />
-              {selectedOwner && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  Selected: {selectedOwner.first_name} {selectedOwner.surname}
-                </p>
-              )}
-            </div>
-
-            <div className="flex justify-end gap-2 pt-4">
-              <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Saving..." : (editingStructure ? "Update Structure" : "Create Structure")}
-              </Button>
-            </div>
-          </form>
+          <div className="py-4">
+            <StructureForm
+              initialData={editingStructure}
+              onSuccess={handleSuccess}
+              onCancel={() => setIsOpen(false)}
+            />
+          </div>
         </DialogContent>
       </Dialog>
     </div>
