@@ -12,7 +12,7 @@ CREATE TYPE evacuation_status AS ENUM ('Evacuated', 'Returned', 'Transferred');
 CREATE TABLE "USER" (
     user_id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    role user_role NOT NULL,
+    role user_role,
     contact_number CHAR(11) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     status user_status NOT NULL DEFAULT 'PENDING'
