@@ -80,7 +80,7 @@ describe('Auth API', () => {
     });
 
     it('should return 200 and set session if login is successful', async () => {
-      const user = { user_id: 2, contact_number: '09123456789', password: 'hashedPassword', status: 'ACTIVE', role: 'Kagawad' };
+      const user = { user_id: 2, name: 'Kagawad Juan', contact_number: '09123456789', password: 'hashedPassword', status: 'ACTIVE', role: 'Kagawad' };
       db.query.mockResolvedValue({ rows: [user] });
       bcrypt.compare.mockResolvedValue(true);
 
@@ -90,7 +90,8 @@ describe('Auth API', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.message).toBe('Login successful');
-      expect(response.body.role).toBe('Kagawad');
+      expect(response.body.user.role).toBe('Kagawad');
+      expect(response.body.user.name).toBe('Kagawad Juan');
       // Supertest provides cookies via response.headers['set-cookie']
       expect(response.headers['set-cookie']).toBeDefined();
     });

@@ -54,7 +54,14 @@ const login = async (req, res) => {
     req.session.role = user.role;
     req.session.status = user.status;
 
-    res.status(200).json({ message: 'Login successful', role: user.role });
+    res.status(200).json({
+      message: 'Login successful',
+      user: {
+        user_id: user.user_id,
+        name: user.name,
+        role: user.role
+      }
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
