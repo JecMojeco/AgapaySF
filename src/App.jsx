@@ -6,6 +6,7 @@ import { UserManagementPage } from "./pages/UserManagementPage";
 import { EventsPage } from "./pages/EventsPage";
 import { ZonesPage } from "./pages/ZonesPage";
 import { ResidentsPage } from "./pages/ResidentsPage";
+import { StructuresPage } from "./pages/StructuresPage";
 import { Layout } from "./components/layout/Layout";
 import { Toaster } from "@/components/ui/toaster";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
@@ -45,6 +46,7 @@ function App() {
                   </Route>
                   <Route element={<ProtectedRoute allowedRoles={['Admin', 'Kagawad', 'Staff']} />}>
                     <Route path="residents" element={<ResidentsPage />} />
+                    <Route path="structures" element={<StructuresPage />} />
                   </Route>
                   <Route path="*" element={<Navigate to="/dashboard" replace />} />
                 </Routes>
