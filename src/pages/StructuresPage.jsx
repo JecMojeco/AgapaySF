@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -6,8 +6,6 @@ import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Home, Plus, Edit2, Trash2, Building, Store, Factory, Landmark } from "lucide-react";
 import { StructureForm } from "@/components/structures/StructureForm";
-
-const STRUCTURE_TYPES = ["Residential", "Commercial", "Agricultural", "Industrial"];
 
 export function StructuresPage() {
   const [structures, setStructures] = useState([]);
@@ -17,7 +15,7 @@ export function StructuresPage() {
   
   const { toast } = useToast();
 
-  const fetchStructures = async () => {
+  const fetchStructures = useCallback(async () => {
     try {
       setLoading(true);
       const data = await api("/structures");
@@ -27,11 +25,11 @@ export function StructuresPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     fetchStructures();
-  }, []);
+  }, [fetchStructures]);
 
   const handleOpenDialog = (structure = null) => {
     setEditingStructure(structure);

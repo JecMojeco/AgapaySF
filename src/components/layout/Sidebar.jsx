@@ -1,5 +1,15 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Users, FileText, ClipboardList, Calendar, Map, Contact, Building, FileBarChart } from "lucide-react";
+import { 
+  LayoutDashboard, 
+  Users, 
+  FileText, 
+  ClipboardList, 
+  Calendar, 
+  Map as MapIcon, 
+  Contact, 
+  Building, 
+  BarChart3 
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 
@@ -9,8 +19,8 @@ const items = [
   { title: "Structures", href: "/dashboard/structures", icon: Building },
   { title: "Users", href: "/dashboard/users", icon: Users, roles: ['Admin'] },
   { title: "Events", href: "/dashboard/events", icon: Calendar, roles: ['Admin'] },
-  { title: "Zones", href: "/dashboard/zones", icon: Map, roles: ['Admin'] },
-  { title: "Reports", href: "/dashboard/reports", icon: FileBarChart, roles: ['Admin'] },
+  { title: "Zones", href: "/dashboard/zones", icon: MapIcon, roles: ['Admin'] },
+  { title: "Reports", href: "/dashboard/reports", icon: BarChart3, roles: ['Admin'] },
   { title: "Assessments", href: "/dashboard/assessments", icon: FileText },
   { title: "Evacuations", href: "/dashboard/evacuations", icon: ClipboardList },
 ];
@@ -46,8 +56,12 @@ export function Sidebar({ isOpen }) {
                 )
               }
             >
-              <item.icon className={cn("h-5 w-5", isActive ? "stroke-[2.5px]" : "stroke-[2px]")} />
-              {item.title}
+              {({ isActive }) => (
+                <>
+                  <item.icon className={cn("h-5 w-5", isActive ? "stroke-[2.5px]" : "stroke-[2px]")} />
+                  {item.title}
+                </>
+              )}
             </NavLink>
           ))}
         </nav>

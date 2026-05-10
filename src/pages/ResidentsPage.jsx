@@ -31,17 +31,7 @@ export function ResidentsPage() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      const fetchData = async () => {
-        try {
-          const data = await api(`/residents${search ? `?search=${search}` : ''}`);
-          setResidents(data);
-        } catch (error) {
-          toast({ title: "Error", description: error.message, variant: "destructive" });
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchData();
+      fetchResidents();
     }, 500);
     return () => clearTimeout(timer);
   }, [search, toast]);
@@ -169,6 +159,7 @@ export function ResidentsPage() {
             <DialogTitle>{editingResident ? 'Edit Resident' : 'Add New Resident'}</DialogTitle>
           </DialogHeader>
           <ResidentForm 
+            key={editingResident?.resident_id || 'new'}
             initialData={editingResident} 
             onSubmit={handleSubmit}
             isLoading={isSubmitting}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -27,8 +27,9 @@ export function ZonesPage() {
     assigned_kagawad: ""
   });
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
+      setLoading(true);
       const [zonesData, kagawadsData] = await Promise.all([
         api('/zones'),
         api('/users?role=Kagawad')
@@ -40,18 +41,18 @@ export function ZonesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   const handleOpenDialog = (zone = null) => {
     if (zone) {
       setEditingZone(zone);
       setFormData({
         zone_name: zone.zone_name,
-        assigned_kagawad: zone.assigned_kagawad.toString()
+        assigned_kagawad: zone.assigned_kagawad?.toString() || ""
       });
     } else {
       setEditingZone(null);
@@ -97,33 +98,35 @@ export function ZonesPage() {
         <Button onClick={() => handleOpenDialog()}>Add Zone</Button>
       </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Zone Name</TableHead>
-            <TableHead>Assigned Kagawad</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {zones.map(zone => (
-            <TableRow key={zone.zone_id}>
-              <TableCell className="font-medium">{zone.zone_name}</TableCell>
-              <TableCell>{zone.kagawad_name || "Unassigned"}</TableCell>
-              <TableCell className="text-right">
-                <Button variant="outline" size="sm" onClick={() => handleOpenDialog(zone)}>Assign Kagawad</Button>
-              </TableCell>
-            </TableRow>
-          ))}
-          {zones.length === 0 && (
+      <div className="border rounded-md">
+        <Table>
+          <TableHeader>
             <TableRow>
-              <TableCell colSpan={3} className="text-center py-10 text-muted-foreground">
-                No zones recorded.
-              </TableCell>
+              <TableHead>Zone Name</TableHead>
+              <TableHead>Assigned Kagawad</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
-          )}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {zones.map(zone => (
+              <TableRow key={zone.zone_id}>
+                <TableCell className="font-medium">{zone.zone_name}</TableCell>
+                <TableCell>{zone.kagawad_name || "Unassigned"}</TableCell>
+                <TableCell className="text-right">
+                  <Button variant="outline" size="sm" onClick={() => handleOpenDialog(zone)}>Assign Kagawad</Button>
+                </TableCell>
+              </TableRow>
+            ))}
+            {zones.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={3} className="text-center py-10 text-muted-foreground">
+                  No zones recorded.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent>

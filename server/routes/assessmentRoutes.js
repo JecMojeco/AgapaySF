@@ -19,7 +19,7 @@ const upload = multer({ storage });
 router.post(
   '/',
   requireAuth,
-  requireRole('Admin', 'Kagawad', 'Staff'),
+  requireRole('Admin', 'Kagawad'),
   upload.single('photo'),
   assessmentController.createAssessment
 );

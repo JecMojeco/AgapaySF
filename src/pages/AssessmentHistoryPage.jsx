@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { api } from '@/lib/api';
 import {
   Table,
@@ -41,11 +41,7 @@ export default function AssessmentHistoryPage() {
   const [zones, setZones] = useState([]);
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const [assessmentsRes, eventsRes, zonesRes] = await Promise.all([
         api('/assessments'),
@@ -65,7 +61,11 @@ export default function AssessmentHistoryPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const filteredAssessments = assessments.filter(a => {
     const searchLower = search.toLowerCase();
