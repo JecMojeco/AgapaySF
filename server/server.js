@@ -9,6 +9,8 @@ const zoneRoutes = require('./routes/zoneRoutes');
 const residentRoutes = require('./routes/residentRoutes');
 const structureRoutes = require('./routes/structureRoutes');
 const assessmentRoutes = require('./routes/assessmentRoutes');
+const evacuationRoutes = require('./routes/evacuationRoutes');
+const reportRoutes = require('./routes/reportRoutes');
 const path = require('path');
 
 const app = express();
@@ -45,6 +47,8 @@ app.use('/api/zones', zoneRoutes);
 app.use('/api/residents', residentRoutes);
 app.use('/api/structures', structureRoutes);
 app.use('/api/assessments', assessmentRoutes);
+app.use('/api/evacuations', evacuationRoutes);
+app.use('/api/reports', reportRoutes);
 
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'ok', message: 'AgapaySF API is running' });

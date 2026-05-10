@@ -23,11 +23,11 @@ export function Layout({ children }) {
   };
 
   return (
-    <div className="relative flex min-h-screen flex-col">
+    <div className="relative flex min-h-screen flex-col bg-background font-sans">
       <Navbar onLogout={handleLogout} onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 justify-center overflow-hidden">
         <Sidebar isOpen={isSidebarOpen} />
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 pb-20 md:pb-8">
+        <main className="w-full flex-1 overflow-y-auto px-container-padding py-section-padding pb-24 md:pb-8 max-w-7xl mx-auto">
           {children}
         </main>
       </div>

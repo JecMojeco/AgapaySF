@@ -4,7 +4,7 @@
 CREATE TYPE user_role AS ENUM ('Kagawad', 'Staff', 'Admin');
 CREATE TYPE user_status AS ENUM ('PENDING', 'ACTIVE', 'INACTIVE');
 CREATE TYPE disaster_type AS ENUM ('Flood', 'Typhoon', 'Fire', 'Earthquake', 'Landslide');
-CREATE TYPE gender_enum AS ENUM ('M', 'F');
+CREATE TYPE gender_enum AS ENUM ('Male', 'Female');
 CREATE TYPE structure_type_enum AS ENUM ('Residential', 'Commercial', 'Agricultural', 'Industrial');
 CREATE TYPE damage_level_enum AS ENUM ('Partial', 'Total');
 CREATE TYPE evacuation_status AS ENUM ('Evacuated', 'Returned', 'Transferred');

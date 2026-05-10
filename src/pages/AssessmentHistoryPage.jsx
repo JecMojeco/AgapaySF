@@ -68,13 +68,14 @@ export default function AssessmentHistoryPage() {
   };
 
   const filteredAssessments = assessments.filter(a => {
+    const searchLower = search.toLowerCase();
     const matchesSearch = 
-      a.structure_address.toLowerCase().includes(search.toLowerCase()) ||
-      a.owner_name.toLowerCase().includes(search.toLowerCase()) ||
-      a.reporter_name.toLowerCase().includes(search.toLowerCase());
+      (a.structure_address?.toLowerCase() || "").includes(searchLower) ||
+      (a.owner_name?.toLowerCase() || "").includes(searchLower) ||
+      (a.reporter_name?.toLowerCase() || "").includes(searchLower);
     
-    const matchesEvent = eventFilter === "all" || a.event_id.toString() === eventFilter;
-    const matchesZone = zoneFilter === "all" || a.zone_id.toString() === zoneFilter;
+    const matchesEvent = eventFilter === "all" || (a.event_id?.toString() || "") === eventFilter;
+    const matchesZone = zoneFilter === "all" || (a.zone_id?.toString() || "") === zoneFilter;
 
     return matchesSearch && matchesEvent && matchesZone;
   });
