@@ -1,32 +1,23 @@
-import { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { UserManagementPage } from "./pages/UserManagementPage";
+import { EventsPage } from "./pages/EventsPage";
+import { ZonesPage } from "./pages/ZonesPage";
+import { ResidentsPage } from "./pages/ResidentsPage";
+import { StructuresPage } from "./pages/StructuresPage";
+import { AssessmentPage } from "./pages/AssessmentPage";
+import AssessmentHistoryPage from "./pages/AssessmentHistoryPage";
+import { EvacuationLogPage } from "./pages/EvacuationLogPage";
+import { ReportsPage } from "./pages/ReportsPage";
 import { Layout } from "./components/layout/Layout";
 import { Toaster } from "@/components/ui/toaster";
-import { useToast } from "@/hooks/use-toast";
+import { ProtectedRoute } from "./components/auth/ProtectedRoute";
+import { useAuth } from "./context/AuthContext";
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(
-    !!localStorage.getItem("auth")
-  );
-  const { toast } = useToast();
-
-  const handleLogin = () => {
-    localStorage.setItem("auth", "true");
-    setIsAuthenticated(true);
-    toast({
-      title: "Login Successful",
-      description: "Welcome back to AgapaySF.",
-    });
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("auth");
-    setIsAuthenticated(false);
-  };
+  const { isAuthenticated } = useAuth();
 
   return (
     <Router>
@@ -38,29 +29,39 @@ function App() {
             isAuthenticated ? (
               <Navigate to="/dashboard" replace />
             ) : (
-              <LoginPage onLogin={handleLogin} />
+              <LoginPage />
             )
           }
         />
         <Route path="/register" element={<RegisterPage />} />
 
         {/* Private Routes */}
-        <Route
-          path="/dashboard/*"
-          element={
-            isAuthenticated ? (
-              <Layout onLogout={handleLogout}>
+        <Route element={<ProtectedRoute />}>
+          <Route
+            path="/dashboard/*"
+            element={
+              <Layout>
                 <Routes>
                   <Route index element={<DashboardPage />} />
-                  <Route path="users" element={<UserManagementPage />} />
+                  <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>
+                    <Route path="users" element={<UserManagementPage />} />
+                    <Route path="events" element={<EventsPage />} />
+                    <Route path="zones" element={<ZonesPage />} />
+                    <Route path="reports" element={<ReportsPage />} />
+                  </Route>
+                  <Route element={ <ProtectedRoute allowedRoles={['Admin', 'Kagawad', 'Staff']} />}>
+                    <Route path="residents" element={<ResidentsPage />} />
+                    <Route path="structures" element={<StructuresPage />} />
+                    <Route path="assessments" element={<AssessmentHistoryPage />} />
+                    <Route path="assessments/new" element={<AssessmentPage />} />
+                    <Route path="evacuations" element={<EvacuationLogPage />} />
+                  </Route>
                   <Route path="*" element={<Navigate to="/dashboard" replace />} />
                 </Routes>
               </Layout>
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        />
+            }
+          />
+        </Route>
 
         {/* Root Redirect */}
         <Route
