@@ -16,7 +16,7 @@ import {
   User
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import api from "@/lib/api";
+import { api } from "@/lib/api";
 import { formatDistanceToNow } from "date-fns";
 
 export function DashboardPage() {
@@ -30,12 +30,12 @@ export function DashboardPage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [summaryRes, activityRes] = await Promise.all([
-          api.get("/reports/summary"),
-          api.get("/reports/activity")
+        const [summaryData, activityData] = await Promise.all([
+          api("/reports/summary"),
+          api("/reports/activity")
         ]);
-        setSummary(summaryRes.data);
-        setActivity(activityRes.data);
+        setSummary(summaryData);
+        setActivity(activityData);
       } catch (error) {
         console.error("Failed to fetch dashboard data:", error);
       } finally {
