@@ -15,17 +15,17 @@ import { useAuth } from "@/context/AuthContext";
 
 const items = [
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { title: "Residents", href: "/dashboard/residents", icon: Contact },
-  { title: "Structures", href: "/dashboard/structures", icon: Building },
-  { title: "Users", href: "/dashboard/users", icon: Users, roles: ['Admin'] },
-  { title: "Events", href: "/dashboard/events", icon: Calendar, roles: ['Admin'] },
-  { title: "Zones", href: "/dashboard/zones", icon: MapIcon, roles: ['Admin'] },
-  { title: "Reports", href: "/dashboard/reports", icon: BarChart3, roles: ['Admin'] },
-  { title: "Assessments", href: "/dashboard/assessments", icon: FileText },
-  { title: "Evacuations", href: "/dashboard/evacuations", icon: ClipboardList },
+  { title: "Residents", href: "/residents", icon: Contact },
+  { title: "Structures", href: "/structures", icon: Building },
+  { title: "Users", href: "/admin/users", icon: Users, roles: ['Admin'] },
+  { title: "Events", href: "/admin/events", icon: Calendar, roles: ['Admin'] },
+  { title: "Zones", href: "/admin/zones", icon: MapIcon, roles: ['Admin'] },
+  { title: "Reports", href: "/reports", icon: BarChart3, roles: ['Admin'] },
+  { title: "Assessments", href: "/assessments", icon: FileText },
+  { title: "Evacuations", href: "/evacuation", icon: ClipboardList },
 ];
 
-export function Sidebar({ isOpen }) {
+export function Sidebar({ isOpen, onClose }) {
   const { user } = useAuth();
 
   const filteredItems = items.filter(item => {
@@ -35,7 +35,7 @@ export function Sidebar({ isOpen }) {
 
   return (
     <aside className={cn(
-      "fixed inset-y-0 left-0 z-40 w-64 border-r border-outline-variant/30 bg-white transition-transform duration-300 ease-in-out md:sticky md:top-16 md:h-[calc(100vh-4rem)] md:translate-x-0 md:bg-surface-container-low/30",
+      "fixed inset-y-0 left-0 z-40 w-64 border-r border-outline-variant/30 bg-white transition-transform duration-300 ease-in-out md:sticky md:top-0 md:h-[calc(100vh-4rem)] md:translate-x-0 md:bg-surface-container-low/30",
       isOpen ? "translate-x-0 shadow-2xl md:shadow-none" : "-translate-x-full"
     )}>
       <div className="flex h-full flex-col gap-4 p-4">
@@ -47,6 +47,7 @@ export function Sidebar({ isOpen }) {
             <NavLink
               key={item.href}
               to={item.href}
+              onClick={onClose}
               className={({ isActive }) =>
                 cn(
                   "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold transition-all",

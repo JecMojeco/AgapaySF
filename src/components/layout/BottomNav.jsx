@@ -5,10 +5,10 @@ import { useAuth } from "@/context/AuthContext";
 
 const items = [
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { title: "Residents", href: "/dashboard/residents", icon: Contact },
-  { title: "Buildings", href: "/dashboard/structures", icon: Building },
-  { title: "Assess", href: "/dashboard/assessments", icon: FileText, roles: ['Admin', 'Kagawad'] },
-  { title: "Evacuate", href: "/dashboard/evacuations", icon: ClipboardList },
+  { title: "Residents", href: "/residents", icon: Contact },
+  { title: "Buildings", href: "/structures", icon: Building },
+  { title: "Assess", href: "/assessments", icon: FileText, roles: ['Admin', 'Kagawad'] },
+  { title: "Evacuate", href: "/evacuation", icon: ClipboardList },
 ];
 
 export function BottomNav() {

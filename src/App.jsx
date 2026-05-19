@@ -22,52 +22,37 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Public Routes */}
-        <Route
-          path="/login"
-          element={
-            isAuthenticated ? (
-              <Navigate to="/dashboard" replace />
-            ) : (
-              <LoginPage />
-            )
-          }
-        />
+        <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
-        {/* Private Routes */}
         <Route element={<ProtectedRoute />}>
-          <Route
-            path="/dashboard/*"
-            element={
-              <Layout>
-                <Routes>
-                  <Route index element={<DashboardPage />} />
-                  <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>
-                    <Route path="users" element={<UserManagementPage />} />
-                    <Route path="events" element={<EventsPage />} />
-                    <Route path="zones" element={<ZonesPage />} />
-                    <Route path="reports" element={<ReportsPage />} />
-                  </Route>
-                  <Route element={ <ProtectedRoute allowedRoles={['Admin', 'Kagawad', 'Staff']} />}>
-                    <Route path="residents" element={<ResidentsPage />} />
-                    <Route path="structures" element={<StructuresPage />} />
-                    <Route path="assessments" element={<AssessmentHistoryPage />} />
-                    <Route path="assessments/new" element={<AssessmentPage />} />
-                    <Route path="evacuations" element={<EvacuationLogPage />} />
-                  </Route>
-                  <Route path="*" element={<Navigate to="/dashboard" replace />} />
-                </Routes>
-              </Layout>
-            }
-          />
+          <Route element={<Layout />}>
+            <Route path="/dashboard" element={<DashboardPage />} />
+            
+            {/* Admin Only */}
+            <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>
+              <Route path="/admin/users/pending" element={<UserManagementPage />} />
+              <Route path="/admin/users" element={<UserManagementPage />} />
+              <Route path="/admin/events" element={<EventsPage />} />
+              <Route path="/admin/zones" element={<ZonesPage />} />
+              <Route path="/reports/damage" element={<ReportsPage />} />
+              <Route path="/reports/evacuation" element={<ReportsPage />} />
+              <Route path="/reports" element={<ReportsPage />} />
+            </Route>
+
+            {/* Admin, Kagawad, Staff */}
+            <Route element={<ProtectedRoute allowedRoles={['Admin', 'Kagawad', 'Staff']} />}>
+              <Route path="/residents" element={<ResidentsPage />} />
+              <Route path="/structures" element={<StructuresPage />} />
+              <Route path="/assessments" element={<AssessmentHistoryPage />} />
+              <Route path="/assessment/new" element={<AssessmentPage />} />
+              <Route path="/evacuation" element={<EvacuationLogPage />} />
+              <Route path="/evacuation/new" element={<EvacuationLogPage />} />
+            </Route>
+          </Route>
         </Route>
 
-        {/* Root Redirect */}
-        <Route
-          path="/"
-          element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />}
-        />
+        <Route path="*" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />} />
       </Routes>
       <Toaster />
     </Router>

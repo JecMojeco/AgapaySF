@@ -26,6 +26,24 @@ export function RegisterForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validation
+    const contactRegex = /^09\d{9}$/;
+    if (!contactRegex.test(formData.contact_number)) {
+      return toast({
+        title: "Registration Failed",
+        description: "Invalid contact number. Must be 11 digits starting with 09.",
+        variant: "destructive",
+      });
+    }
+
+    if (formData.password.length < 8) {
+      return toast({
+        title: "Registration Failed",
+        description: "Password must be at least 8 characters long.",
+        variant: "destructive",
+      });
+    }
+
     if (formData.password !== formData.confirmPassword) {
       return toast({
         title: "Registration Failed",

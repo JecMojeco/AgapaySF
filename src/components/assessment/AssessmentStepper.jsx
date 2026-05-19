@@ -256,14 +256,14 @@ export function AssessmentStepper() {
       <div className="grid grid-cols-2 gap-4">
         <button
           type="button"
-          onClick={() => setFormData({ ...formData, damage_level: "Partially Damaged" })}
+          onClick={() => setFormData({ ...formData, damage_level: "Partial" })}
           className={`flex flex-col items-center justify-center p-6 rounded-xl border-2 transition-all h-40 ${
-            formData.damage_level === "Partially Damaged" 
+            formData.damage_level === "Partial" 
               ? "border-[#F9A825] bg-[#F9A825]/10" 
               : "border-muted bg-card hover:border-muted-foreground"
           }`}
         >
-          <div className={`p-3 rounded-full mb-3 ${formData.damage_level === "Partially Damaged" ? "bg-[#F9A825] text-white" : "bg-muted"}`}>
+          <div className={`p-3 rounded-full mb-3 ${formData.damage_level === "Partial" ? "bg-[#F9A825] text-white" : "bg-muted"}`}>
             <AlertTriangle className="w-6 h-6" />
           </div>
           <span className="font-bold text-[#F9A825]">Partially Damaged</span>
@@ -272,14 +272,14 @@ export function AssessmentStepper() {
 
         <button
           type="button"
-          onClick={() => setFormData({ ...formData, damage_level: "Totally Damaged" })}
+          onClick={() => setFormData({ ...formData, damage_level: "Total" })}
           className={`flex flex-col items-center justify-center p-6 rounded-xl border-2 transition-all h-40 ${
-            formData.damage_level === "Totally Damaged" 
+            formData.damage_level === "Total" 
               ? "border-[#E65100] bg-[#E65100]/10" 
               : "border-muted bg-card hover:border-muted-foreground"
           }`}
         >
-          <div className={`p-3 rounded-full mb-3 ${formData.damage_level === "Totally Damaged" ? "bg-[#E65100] text-white" : "bg-muted"}`}>
+          <div className={`p-3 rounded-full mb-3 ${formData.damage_level === "Total" ? "bg-[#E65100] text-white" : "bg-muted"}`}>
             <AlertCircle className="w-6 h-6" />
           </div>
           <span className="font-bold text-[#E65100]">Totally Damaged</span>
@@ -345,13 +345,13 @@ export function AssessmentStepper() {
 
         <div className="p-4 border rounded-lg flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-full ${formData.damage_level === 'Totally Damaged' ? 'bg-[#E65100]/10 text-[#E65100]' : 'bg-[#F9A825]/10 text-[#F9A825]'}`}>
+            <div className={`p-2 rounded-full ${formData.damage_level === 'Total' ? 'bg-[#E65100]/10 text-[#E65100]' : 'bg-[#F9A825]/10 text-[#F9A825]'}`}>
               <AlertCircle className="w-4 h-4" />
             </div>
             <div>
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Damage Level</p>
-              <p className={`font-bold ${formData.damage_level === 'Totally Damaged' ? 'text-[#E65100]' : 'text-[#F9A825]'}`}>
-                {formData.damage_level}
+              <p className={`font-bold ${formData.damage_level === 'Total' ? 'text-[#E65100]' : 'text-[#F9A825]'}`}>
+                {formData.damage_level === 'Total' ? 'Totally Damaged' : formData.damage_level === 'Partial' ? 'Partially Damaged' : ''}
               </p>
             </div>
           </div>

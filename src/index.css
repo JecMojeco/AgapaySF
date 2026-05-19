@@ -85,6 +85,12 @@
   }
 }
 
+@media print {
+  nav, aside, button, footer, .print-hidden { display: none !important; }
+  .print-area { display: block !important; position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 20px; }
+  .card { border: 1px solid #eee !important; box-shadow: none !important; }
+}
+
 @layer base {
   * {
     @apply border-border;

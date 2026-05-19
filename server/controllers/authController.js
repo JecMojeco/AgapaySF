@@ -8,6 +8,19 @@ const register = async (req, res) => {
       return res.status(400).json({ error: 'All fields are required' });
     }
 
+    // Validation
+    const contactRegex = /^09\d{9}$/;
+    if (!contactRegex.test(contact_number)) {
+      return res.status(400).json({ error: 'Invalid contact number. Must be 11 digits starting with 09.' });
+    }
+
+    const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%]).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({
+        error: 'Password must be at least 8 characters long and contain at least one letter, one digit, and one special character (!@#$%).'
+      });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const query = 'INSERT INTO "USER" (name, contact_number, password) VALUES ($1, $2, $3) RETURNING user_id, status';
     const values = [name, contact_number, hashedPassword];

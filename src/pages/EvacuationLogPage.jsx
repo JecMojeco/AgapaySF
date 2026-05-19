@@ -37,7 +37,8 @@ import {
   ClipboardList 
 } from "lucide-react";
 import { format } from "date-fns";
-import { ResidentLookup } from "@/components/residents/ResidentLookup";
+
+import { EvacuationStepper } from "@/components/evacuation/EvacuationStepper";
 
 export function EvacuationLogPage() {
   const [logs, setLogs] = useState([]);
@@ -50,12 +51,6 @@ export function EvacuationLogPage() {
   const { toast } = useToast();
 
   // Form states
-  const [newLog, setNewLog] = useState({
-    resident_id: "",
-    event_id: "",
-    arrival_date: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
-    status: "Evacuated"
-  });
   const [departureDate, setDepartureDate] = useState(format(new Date(), "yyyy-MM-dd'T'HH:mm"));
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -82,45 +77,6 @@ export function EvacuationLogPage() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
-
-  const handleAddArrival = async () => {
-    if (!newLog.resident_id || !newLog.event_id || !newLog.arrival_date) {
-      toast({
-        title: "Validation Error",
-        description: "Please fill in all required fields.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      await api("/evacuations", {
-        method: "POST",
-        body: JSON.stringify(newLog)
-      });
-      toast({
-        title: "Success",
-        description: "Arrival logged successfully.",
-      });
-      setIsAddOpen(false);
-      setNewLog({
-        resident_id: "",
-        event_id: "",
-        arrival_date: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
-        status: "Evacuated"
-      });
-      fetchData();
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   const handleLogDeparture = async () => {
     if (!selectedLog || !departureDate) return;
@@ -160,9 +116,11 @@ export function EvacuationLogPage() {
   const getStatusBadge = (status) => {
     switch (status) {
       case 'Evacuated':
-        return <Badge className="bg-orange-500 hover:bg-orange-600 text-white">Evacuated</Badge>;
+        return <Badge className="bg-[#2E7D32] hover:bg-[#2E7D32]/90 text-white border-none">Evacuated</Badge>;
       case 'Returned':
-        return <Badge className="bg-green-500 hover:bg-green-600 text-white">Returned</Badge>;
+        return <Badge className="bg-[#1565C0] hover:bg-[#1565C0]/90 text-white border-none">Returned</Badge>;
+      case 'Transferred':
+        return <Badge className="bg-[#9E9E9E] hover:bg-[#9E9E9E]/90 text-white border-none">Transferred</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -279,51 +237,18 @@ export function EvacuationLogPage() {
 
       {/* Add Arrival Dialog */}
       <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>Log New Arrival</DialogTitle>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="resident">Resident</Label>
-              <ResidentLookup 
-                onSelect={(r) => setNewLog({ ...newLog, resident_id: r.resident_id })} 
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="event">Disaster Event</Label>
-              <Select 
-                onValueChange={(val) => setNewLog({ ...newLog, event_id: val })}
-                value={newLog.event_id}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select active event" />
-                </SelectTrigger>
-                <SelectContent>
-                  {events.map(event => (
-                    <SelectItem key={event.event_id} value={event.event_id.toString()}>
-                      {event.event_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="arrival_date">Arrival Date & Time</Label>
-              <Input
-                id="arrival_date"
-                type="datetime-local"
-                value={newLog.arrival_date}
-                onChange={(e) => setNewLog({ ...newLog, arrival_date: e.target.value })}
-              />
-            </div>
+          <div className="py-4">
+            <EvacuationStepper 
+              onSuccess={() => {
+                fetchData();
+                setTimeout(() => setIsAddOpen(false), 2000);
+              }} 
+            />
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsAddOpen(false)}>Cancel</Button>
-            <Button onClick={handleAddArrival} disabled={isSubmitting}>
-              {isSubmitting ? "Logging..." : "Log Arrival"}
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
 
