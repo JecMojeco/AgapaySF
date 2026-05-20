@@ -102,4 +102,43 @@ describe('User Management API', () => {
       expect(response.body.user).toEqual(rejectedUser);
     });
   });
+
+  describe('PATCH /api/users/:id/reactivate', () => {
+    it('should reactivate user if admin', async () => {
+      const reactivatedUser = { user_id: 10, name: 'Alice', status: 'ACTIVE' };
+      db.query.mockResolvedValue({ rows: [reactivatedUser] });
+
+      const agent = request.agent(app);
+      await agent.get('/test-session-admin');
+      const response = await agent.patch('/api/users/10/reactivate');
+
+      expect(response.status).toBe(200);
+      expect(response.body.message).toBe('User reactivated successfully');
+      expect(response.body.user).toEqual(reactivatedUser);
+    });
+  });
+
+  describe('DELETE /api/users/:id', () => {
+    it('should delete user if admin', async () => {
+      db.query.mockResolvedValue({ rows: [{ user_id: 10 }] });
+
+      const agent = request.agent(app);
+      await agent.get('/test-session-admin');
+      const response = await agent.delete('/api/users/10');
+
+      expect(response.status).toBe(200);
+      expect(response.body.message).toBe('User deleted permanently');
+    });
+
+    it('should return 404 if user not found', async () => {
+      db.query.mockResolvedValue({ rows: [] });
+
+      const agent = request.agent(app);
+      await agent.get('/test-session-admin');
+      const response = await agent.delete('/api/users/10');
+
+      expect(response.status).toBe(404);
+      expect(response.body.error).toBe('User not found');
+    });
+  });
 });

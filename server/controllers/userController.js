@@ -124,6 +124,38 @@ const deactivateUser = async (req, res) => {
   }
 };
 
+const reactivateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const result = await db.query(
+      'UPDATE "USER" SET status = $1 WHERE user_id = $2 RETURNING user_id, name, status',
+      ['ACTIVE', id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.status(200).json({ message: 'User reactivated successfully', user: result.rows[0] });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await db.query('DELETE FROM "USER" WHERE user_id = $1 RETURNING *', [id]);
+    if (result.rows.length === 0) return res.status(404).json({ error: 'User not found' });
+    res.status(200).json({ message: 'User deleted permanently' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 module.exports = {
   getPendingUsers,
   approveUser,
@@ -131,4 +163,6 @@ module.exports = {
   getUsers,
   updateUserRole,
   deactivateUser,
+  reactivateUser,
+  deleteUser,
 };

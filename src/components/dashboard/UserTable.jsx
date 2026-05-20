@@ -133,6 +133,35 @@ export function UserTable() {
     }
   };
 
+  const handleReactivate = async (userId) => {
+    try {
+      await api(`/users/${userId}/reactivate`, { method: "PATCH" });
+      toast({ title: "Success", description: "User reactivated" });
+      fetchUsers();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDelete = async (userId) => {
+    if (!confirm("Are you sure you want to permanently delete this user?")) return;
+    try {
+      await api(`/users/${userId}`, { method: "DELETE" });
+      toast({ title: "Success", description: "User deleted permanently" });
+      fetchUsers();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) return <div className="p-4 text-center">Loading users...</div>;
 
   return (
@@ -228,6 +257,23 @@ export function UserTable() {
                   >
                     Deactivate
                   </Button>
+                )}
+                {user.status === "INACTIVE" && (
+                  <>
+                    <Button
+                      size="sm"
+                      onClick={() => handleReactivate(user.user_id)}
+                    >
+                      Reactivate
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => handleDelete(user.user_id)}
+                    >
+                      Delete Permanently
+                    </Button>
+                  </>
                 )}
               </TableCell>
             </TableRow>
