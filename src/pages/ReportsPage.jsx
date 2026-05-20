@@ -78,7 +78,7 @@ export function ReportsPage() {
         const activeEvent = eventsData.find(e => e.status === 'Active' || e.status === 'Ongoing') || eventsData[0];
         setSelectedEvent(activeEvent.event_id.toString());
       }
-    } catch (err) {
+    } catch {
       toast({
         title: "Error",
         description: "Failed to fetch summary data.",
@@ -107,6 +107,38 @@ export function ReportsPage() {
   const totalDamageReports = damageData.reduce((acc, curr) => acc + parseInt(curr.count), 0);
   const totalEvacuationLogs = evacuationData.reduce((acc, curr) => acc + parseInt(curr.count), 0);
 
+  const handleExportCSV = (data, filename) => {
+    if (!data || data.length === 0) {
+      toast({
+        title: "No data",
+        description: "There is no data to export.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const headers = Object.keys(data[0]);
+    const csvRows = [
+      headers.join(','),
+      ...data.map(row => headers.map(header => {
+        const value = row[header] === null || row[header] === undefined ? '' : row[header];
+        const escaped = ('' + value).replace(/"/g, '""');
+        return `"${escaped}"`;
+      }).join(','))
+    ];
+    
+    const csvString = csvRows.join('\n');
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `${filename}_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
@@ -127,7 +159,7 @@ export function ReportsPage() {
         </div>
         <Button onClick={() => window.print()} variant="outline" className="print:hidden">
           <Printer className="h-4 w-4 mr-2" />
-          Print Report
+          Print PDF Summary
         </Button>
       </div>
 
@@ -411,8 +443,30 @@ export function ReportsPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="border-outline-variant/50 text-[10px] font-bold h-7 uppercase px-3">CSV Export</Badge>
-            <Badge variant="outline" className="border-outline-variant/50 text-[10px] font-bold h-7 uppercase px-3">PDF Summary</Badge>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="h-8 text-[10px] font-bold uppercase"
+              onClick={() => handleExportCSV(damageDetails, 'damage_report')}
+            >
+              Damage CSV
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="h-8 text-[10px] font-bold uppercase"
+              onClick={() => handleExportCSV(evacuationDetails, 'evacuation_log')}
+            >
+              Evacuation CSV
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="h-8 text-[10px] font-bold uppercase"
+              onClick={() => window.print()}
+            >
+              PDF Summary
+            </Button>
           </div>
         </CardContent>
       </Card>
