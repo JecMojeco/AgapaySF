@@ -31,7 +31,7 @@ describe('Auth API', () => {
 
       const response = await request(app)
         .post('/api/auth/register')
-        .send({ name: 'John Doe', contact_number: '09123456789', password: 'password123' });
+        .send({ name: 'John Doe', contact_number: '09123456789', password: 'Password123!' });
 
       expect(response.status).toBe(201);
       expect(response.body.message).toBe('Registration submitted successfully');
@@ -47,7 +47,7 @@ describe('Auth API', () => {
 
       const response = await request(app)
         .post('/api/auth/register')
-        .send({ name: 'John Doe', contact_number: '09123456789', password: 'password123' });
+        .send({ name: 'John Doe', contact_number: '09123456789', password: 'Password123!' });
 
       expect(response.status).toBe(409);
       expect(response.body.error).toBe('Contact number already registered');
