@@ -28,7 +28,7 @@ export function ResidentForm({ initialData, onSubmit, isLoading }) {
       surname: "",
       first_name: "",
       middle_initial: "",
-      gender: "M",
+      gender: "Male",
       birth_date: "",
       contact_number: "",
       family_size: 1,
@@ -98,8 +98,8 @@ export function ResidentForm({ initialData, onSubmit, isLoading }) {
               <SelectValue placeholder="Select Gender" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="M">Male</SelectItem>
-              <SelectItem value="F">Female</SelectItem>
+              <SelectItem value="Male">Male</SelectItem>
+              <SelectItem value="Female">Female</SelectItem>
             </SelectContent>
           </Select>
         </div>

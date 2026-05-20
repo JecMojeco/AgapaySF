@@ -63,7 +63,7 @@ describe('Residents API', () => {
       const newResident = {
         surname: 'Doe',
         first_name: 'Jane',
-        gender: 'F',
+        gender: 'Female',
         birth_date: '1990-01-01',
         family_size: 1,
         zone_id: 1
@@ -85,7 +85,7 @@ describe('Residents API', () => {
       const response = await agent.post('/api/residents').send({
         surname: 'Doe',
         first_name: 'Jane',
-        gender: 'F',
+        gender: 'Female',
         birth_date: '1990-01-01',
         family_size: 1,
         zone_id: 1,
@@ -102,7 +102,7 @@ describe('Residents API', () => {
       const updatedResident = {
         surname: 'Updated',
         first_name: 'Jane',
-        gender: 'F',
+        gender: 'Female',
         birth_date: '1990-01-01',
         family_size: 2,
         zone_id: 1
