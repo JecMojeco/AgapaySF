@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { LogOut, Menu } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
+import { Link } from "react-router-dom";
 
 export function Navbar({ onLogout, onToggleSidebar }) {
   return (
@@ -10,7 +11,9 @@ export function Navbar({ onLogout, onToggleSidebar }) {
           <Button variant="ghost" size="icon" className="flex md:hidden -ml-2 hover:bg-muted" onClick={onToggleSidebar}>
             <Menu className="h-5 w-5 text-on-surface-variant" />
           </Button>
-          <Logo className="h-14 ml-1" />
+          <Link to="/dashboard" className="transition-opacity hover:opacity-80">
+            <Logo className="h-14 ml-1" />
+          </Link>
         </div>
         <div className="flex items-center gap-1">
           <span className="hidden md:inline text-xs font-bold text-on-surface-variant/60 uppercase tracking-widest mr-4">Institutional Portal</span>
