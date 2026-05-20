@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Logo } from "@/components/ui/Logo";
 import { api } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -47,6 +48,7 @@ export function LoginForm() {
     <Card className="w-[350px]">
       <form onSubmit={handleSubmit}>
         <CardHeader>
+          <Logo className="h-16 mx-auto mb-2" />
           <CardTitle>Login to AgapaySF</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
