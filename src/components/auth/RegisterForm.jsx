@@ -37,10 +37,11 @@ export function RegisterForm() {
       });
     }
 
-    if (formData.password.length < 8) {
+    const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+    if (!passwordRegex.test(formData.password)) {
       return toast({
         title: "Registration Failed",
-        description: "Password must be at least 8 characters long.",
+        description: "Password must be at least 8 characters long and contain both letters and numbers.",
         variant: "destructive",
       });
     }
