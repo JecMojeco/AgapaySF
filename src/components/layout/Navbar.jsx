@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { LogOut, Menu } from "lucide-react";
+import { Logo } from "@/components/ui/Logo";
 
 export function Navbar({ onLogout, onToggleSidebar }) {
   return (
@@ -9,12 +10,7 @@ export function Navbar({ onLogout, onToggleSidebar }) {
           <Button variant="ghost" size="icon" className="flex md:hidden -ml-2 hover:bg-muted" onClick={onToggleSidebar}>
             <Menu className="h-5 w-5 text-on-surface-variant" />
           </Button>
-          <div className="flex items-center gap-1.5 ml-1">
-            <div className="w-6 h-6 bg-primary rounded-sm flex items-center justify-center">
-              <span className="text-[10px] font-bold text-white leading-none">A</span>
-            </div>
-            <span className="text-lg font-bold tracking-tight text-on-surface">AgapaySF</span>
-          </div>
+          <Logo className="h-8 ml-1" />
         </div>
         <div className="flex items-center gap-1">
           <span className="hidden md:inline text-xs font-bold text-on-surface-variant/60 uppercase tracking-widest mr-4">Institutional Portal</span>
