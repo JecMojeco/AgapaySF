@@ -40,11 +40,17 @@ export function EventsPage() {
   const handleOpenDialog = (event = null) => {
     if (event) {
       setEditingEvent(event);
+      
+      const formatDataDate = (dateStr) => {
+        if (!dateStr) return "";
+        return dateStr.includes('T') ? dateStr.split('T')[0] : dateStr;
+      };
+
       setFormData({
         event_name: event.event_name,
         disaster_type: event.disaster_type,
-        date_started: event.date_started.split('T')[0],
-        date_ended: event.date_ended ? event.date_ended.split('T')[0] : ""
+        date_started: formatDataDate(event.date_started),
+        date_ended: formatDataDate(event.date_ended)
       });
     } else {
       setEditingEvent(null);

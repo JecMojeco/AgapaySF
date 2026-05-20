@@ -48,6 +48,14 @@ const updateEvent = async (req, res) => {
     const { id } = req.params;
     const { event_name, date_started, date_ended, disaster_type } = req.body;
 
+    if (!event_name || !date_started || !disaster_type) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    if (date_ended && new Date(date_ended) < new Date(date_started)) {
+      return res.status(400).json({ error: 'End date cannot be before start date' });
+    }
+
     const result = await db.query(
       'UPDATE DISASTER_EVENT SET event_name = $1, date_started = $2, date_ended = $3, disaster_type = $4 WHERE event_id = $5 RETURNING *',
       [event_name, date_started, date_ended, disaster_type, id]

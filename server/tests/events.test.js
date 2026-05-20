@@ -91,11 +91,38 @@ describe('Events API', () => {
       const agent = request.agent(app);
       await agent.get('/test-session-admin');
       const response = await agent.patch('/api/events/1').send({
-        event_name: 'Updated Event'
+        event_name: 'Updated Event',
+        date_started: '2024-01-01',
+        disaster_type: 'Flood'
       });
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual(updatedEvent);
+    });
+
+    it('should return 400 if missing required fields', async () => {
+      const agent = request.agent(app);
+      await agent.get('/test-session-admin');
+      const response = await agent.patch('/api/events/1').send({
+        event_name: 'Updated Event'
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe('Missing required fields');
+    });
+
+    it('should return 400 if date_ended is before date_started', async () => {
+      const agent = request.agent(app);
+      await agent.get('/test-session-admin');
+      const response = await agent.patch('/api/events/1').send({
+        event_name: 'Updated Event',
+        date_started: '2024-01-05',
+        date_ended: '2024-01-01',
+        disaster_type: 'Flood'
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe('End date cannot be before start date');
     });
   });
 
