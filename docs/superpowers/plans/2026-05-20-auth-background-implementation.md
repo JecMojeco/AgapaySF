@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Set `src/assets/background.jpg` as the background for Login and Registration pages with 80% opacity.
+**Goal:** Set `src/assets/background.jpg` as the background for Login and Registration pages with 70% opacity.
 
 **Architecture:** Use a CSS `::before` pseudo-element on the main container of the pages to apply the background image and control opacity without affecting child elements (the forms).
 
@@ -36,7 +36,7 @@ Add the following rule to the `@layer components` or at the end of the file:
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  opacity: 0.8;
+  opacity: 0.7;
   z-index: 0;
 }
 
@@ -95,5 +95,5 @@ git commit -m "feat: apply background overlay to RegisterPage"
 - [ ] **Step 1: Visual check**
 - Run the development server if not already running.
 - Visit `/login` and `/register` routes.
-- Verify background image is visible, covering the screen, and has 80% opacity.
+- Verify background image is visible, covering the screen, and has 70% opacity.
 - Verify form text and inputs are clearly readable.

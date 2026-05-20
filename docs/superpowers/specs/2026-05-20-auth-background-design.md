@@ -28,7 +28,7 @@ Implement a background image for `LoginPage` and `RegisterPage` using a CSS pseu
   background-image: url('/src/assets/background.jpg');
   background-size: cover;
   background-position: center;
-  opacity: 0.8; /* 80% opacity as requested */
+  opacity: 0.7; /* 70% opacity as requested */
   z-index: -1;
 }
 ```
