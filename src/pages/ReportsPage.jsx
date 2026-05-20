@@ -31,6 +31,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
+import { ReportPrintTemplate } from "@/components/dashboard/ReportPrintTemplate";
 
 export function ReportsPage() {
   const [summary, setSummary] = useState(null);
@@ -151,7 +152,7 @@ export function ReportsPage() {
   }
 
   return (
-    <div className="p-6 animate-in fade-in duration-700 space-y-8 print-area">
+    <div className="p-6 animate-in fade-in duration-700 space-y-8 print-area print:hidden">
       <div className="flex justify-between items-start">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-on-surface">System Reports</h1>
@@ -470,6 +471,16 @@ export function ReportsPage() {
           </div>
         </CardContent>
       </Card>
+      
+      <ReportPrintTemplate 
+        summary={summary}
+        events={events}
+        selectedEvent={selectedEvent}
+        damageData={damageData}
+        evacuationData={evacuationData}
+        damageDetails={damageDetails}
+        evacuationDetails={evacuationDetails}
+      />
     </div>
   );
 }
