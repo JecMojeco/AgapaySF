@@ -31,7 +31,7 @@ describe('Auth API', () => {
 
       const response = await request(app)
         .post('/api/auth/register')
-        .send({ name: 'John Doe', contact_number: '09123456789', password: 'Password123!' });
+        .send({ name: 'John Doe', contact_number: '09123456789', password: 'Password123' });
 
       expect(response.status).toBe(201);
       expect(response.body.message).toBe('Registration submitted successfully');
@@ -47,7 +47,7 @@ describe('Auth API', () => {
 
       const response = await request(app)
         .post('/api/auth/register')
-        .send({ name: 'John Doe', contact_number: '09123456789', password: 'Password123!' });
+        .send({ name: 'John Doe', contact_number: '09123456789', password: 'Password123' });
 
       expect(response.status).toBe(409);
       expect(response.body.error).toBe('Contact number already registered');
@@ -60,7 +60,7 @@ describe('Auth API', () => {
 
       const response = await request(app)
         .post('/api/auth/login')
-        .send({ contact_number: '09000000000', password: 'wrong' });
+        .send({ contact_number: '09000000000', password: 'WrongPassword123' });
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Incorrect contact number or password. Please try again.');

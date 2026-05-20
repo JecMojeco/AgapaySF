@@ -7,7 +7,7 @@ export function UserManagementPage() {
         <h1 className="text-3xl font-bold tracking-tight">User Management</h1>
         <p className="text-muted-foreground">
           Review and approve registration requests from barangay officials.
-        </p>y
+        </p>
       </div>
       <UserTable />
     </div>
