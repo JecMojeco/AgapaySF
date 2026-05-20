@@ -66,6 +66,16 @@ export function ZonesPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!formData.assigned_kagawad) {
+      toast({
+        title: "Assignment Required",
+        description: "Please select a Kagawad to assign to this zone",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       const method = editingZone ? 'PUT' : 'POST';
       const endpoint = editingZone ? `/zones/${editingZone.zone_id}` : '/zones';

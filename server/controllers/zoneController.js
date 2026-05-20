@@ -43,6 +43,10 @@ const createZone = async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
+    if (isNaN(assigned_kagawad)) {
+      return res.status(400).json({ error: 'Invalid Kagawad ID' });
+    }
+
     const result = await db.query(
       'INSERT INTO BARANGAY_ZONE (zone_name, assigned_kagawad) VALUES ($1, $2) RETURNING *',
       [zone_name, assigned_kagawad]
@@ -58,6 +62,10 @@ const updateZone = async (req, res) => {
   try {
     const { id } = req.params;
     const { zone_name, assigned_kagawad } = req.body;
+
+    if (assigned_kagawad && isNaN(assigned_kagawad)) {
+      return res.status(400).json({ error: 'Invalid Kagawad ID' });
+    }
 
     const result = await db.query(
       'UPDATE BARANGAY_ZONE SET zone_name = $1, assigned_kagawad = $2 WHERE zone_id = $3 RETURNING *',
