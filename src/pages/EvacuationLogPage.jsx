@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { api } from "@/lib/api";
 import { 
   Table, 
@@ -20,6 +20,13 @@ import {
   DialogTitle, 
   DialogFooter 
 } from "@/components/ui/dialog";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { 
   Search, 
@@ -27,45 +34,92 @@ import {
   LogOut, 
   Calendar, 
   MapPin, 
-  ClipboardList 
+  ClipboardList,
+  Filter,
+  Loader2
 } from "lucide-react";
 import { format } from "date-fns";
+import { useAuth } from "@/context/AuthContext";
 
 import { EvacuationStepper } from "@/components/evacuation/EvacuationStepper";
 
 export function EvacuationLogPage() {
+  const { user } = useAuth();
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [eventFilter, setEventFilter] = useState("all");
+  const [zoneFilter, setZoneFilter] = useState("all");
+  const [events, setEvents] = useState([]);
+  const [zones, setZones] = useState([]);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isDepartureOpen, setIsDepartureOpen] = useState(false);
   const [selectedLog, setSelectedLog] = useState(null);
   const { toast } = useToast();
 
+  const isKagawad = user?.role === 'Kagawad';
+
   // Form states
   const [departureDate, setDepartureDate] = useState(format(new Date(), "yyyy-MM-dd'T'HH:mm"));
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // 1. Fetch metadata once on mount
+  useEffect(() => {
+    const fetchMetadata = async () => {
+      try {
+        const [eventsRes, zonesRes] = await Promise.all([
+          api('/events'),
+          api('/zones')
+        ]);
+        setEvents(eventsRes);
+        setZones(zonesRes);
+      } catch (error) {
+        console.error('Metadata fetch failed:', error);
+      }
+    };
+    fetchMetadata();
+  }, []);
+
+  // 2. Sync zoneFilter for Kagawad
+  useEffect(() => {
+    if (isKagawad && user?.zone_id) {
+      setZoneFilter(user.zone_id.toString());
+    }
+  }, [user, isKagawad]);
+
+  // 3. Fetch operational data on filter change
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      const [logsData] = await Promise.all([
-        api("/evacuations")
-      ]);
+      const params = new URLSearchParams();
+      if (search) params.append('search', search);
+      if (eventFilter && eventFilter !== 'all') {
+        params.append('event_id', eventFilter);
+      }
+      
+      const effectiveZone = isKagawad ? user?.zone_id?.toString() : zoneFilter;
+      if (effectiveZone && effectiveZone !== 'all') {
+        params.append('zone_id', effectiveZone);
+      }
+
+      const logsData = await api(`/evacuations?${params.toString()}`);
       setLogs(logsData);
     } catch {
       toast({
-        title: "Error",
-        description: "Failed to fetch evacuation data.",
+        title: "Filter Error",
+        description: "Failed to apply filters to evacuation data.",
         variant: "destructive",
       });
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, [search, eventFilter, zoneFilter, isKagawad, user?.zone_id, toast]);
 
   useEffect(() => {
-    fetchData();
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 400);
+    return () => clearTimeout(timer);
   }, [fetchData]);
 
   const handleLogDeparture = async () => {
@@ -97,12 +151,6 @@ export function EvacuationLogPage() {
     }
   };
 
-  const filteredLogs = logs.filter(log => 
-    log.resident_name.toLowerCase().includes(search.toLowerCase()) ||
-    log.event_name.toLowerCase().includes(search.toLowerCase()) ||
-    log.zone_name.toLowerCase().includes(search.toLowerCase())
-  );
-
   const getStatusBadge = (status) => {
     switch (status) {
       case 'Evacuated':
@@ -115,6 +163,12 @@ export function EvacuationLogPage() {
         return <Badge variant="outline">{status}</Badge>;
     }
   };
+
+  const currentZoneName = useMemo(() => {
+    if (!isKagawad) return "All Zones";
+    const zone = zones.find(z => z.zone_id.toString() === zoneFilter);
+    return zone ? zone.zone_name : "Your Zone";
+  }, [isKagawad, zones, zoneFilter]);
 
   return (
     <div className="p-6 animate-in fade-in duration-700 space-y-6">
@@ -131,19 +185,59 @@ export function EvacuationLogPage() {
 
       <Card className="border-outline-variant/30 shadow-sm">
         <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <CardTitle className="text-lg flex items-center gap-2">
               <ClipboardList className="h-5 w-5 text-primary" />
               Logs
             </CardTitle>
-            <div className="relative w-full max-w-sm">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search resident, event, or zone..."
-                className="pl-9 h-9"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
+            <div className="flex flex-col md:flex-row w-full md:w-auto gap-2">
+              <div className="relative w-full md:w-64">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search resident..."
+                  className="pl-9 h-9"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <Select value={eventFilter} onValueChange={setEventFilter}>
+                  <SelectTrigger className="w-[140px] h-9">
+                    <SelectValue placeholder="All Events" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Events</SelectItem>
+                    {events.map(e => (
+                      <SelectItem key={e.event_id} value={e.event_id.toString()}>{e.event_name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {!isKagawad ? (
+                  <Select 
+                    value={zoneFilter} 
+                    onValueChange={setZoneFilter}
+                  >
+                    <SelectTrigger className="w-[120px] h-9">
+                      <SelectValue placeholder="All Zones" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Zones</SelectItem>
+                      {zones.map(z => (
+                        <SelectItem key={z.zone_id} value={z.zone_id.toString()}>{z.zone_name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <div className="flex items-center gap-2 h-9 px-3 rounded-md bg-primary/10 border border-primary/20 text-primary">
+                    <MapPin className="h-3.5 w-3.5" />
+                    <span className="text-[10px] font-bold uppercase tracking-tight leading-none pt-0.5">
+                      {currentZoneName}
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </CardHeader>
@@ -164,17 +258,20 @@ export function EvacuationLogPage() {
               {loading ? (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-10 text-muted-foreground">
-                    Loading logs...
+                    <div className="flex flex-col items-center gap-2">
+                      <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                      <span>Loading logs...</span>
+                    </div>
                   </TableCell>
                 </TableRow>
-              ) : filteredLogs.length === 0 ? (
+              ) : logs.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-10 text-muted-foreground">
-                    No evacuation logs found.
+                    No evacuation logs found for the selected criteria.
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredLogs.map((log) => (
+                logs.map((log) => (
                   <TableRow key={log.evacuation_id}>
                     <TableCell className="font-medium">{log.resident_name}</TableCell>
                     <TableCell>{log.event_name}</TableCell>

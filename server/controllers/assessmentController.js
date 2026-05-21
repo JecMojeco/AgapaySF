@@ -22,9 +22,20 @@ exports.createAssessment = async (req, res) => {
 };
 
 exports.getAllAssessments = async (req, res) => {
-  const { role, user_id, zone_id } = req.session;
+  const { role, user_id } = req.session;
+  let { zone_id: sessionZoneId } = req.session;
+  const { event_id, zone_id, search } = req.query;
 
   try {
+    // Robust session recovery for Kagawad
+    if (role === 'Kagawad' && !sessionZoneId) {
+      const zoneResult = await pool.query('SELECT zone_id FROM BARANGAY_ZONE WHERE assigned_kagawad = $1', [user_id]);
+      if (zoneResult.rows.length > 0) {
+        sessionZoneId = zoneResult.rows[0].zone_id;
+        req.session.zone_id = sessionZoneId;
+      }
+    }
+
     let query = `
       SELECT 
         ar.*,
@@ -44,10 +55,32 @@ exports.getAllAssessments = async (req, res) => {
     `;
 
     const params = [];
+    const conditions = [];
+
     if (role === 'Kagawad') {
-      // Kagawad only see their zone
-      query += ` WHERE bz.zone_id = $1`;
+      if (sessionZoneId) {
+        params.push(sessionZoneId);
+        conditions.push(`bz.zone_id = $${params.length}`);
+      } else {
+        return res.json([]);
+      }
+    } else if (zone_id && zone_id !== 'all') {
       params.push(zone_id);
+      conditions.push(`bz.zone_id = $${params.length}`);
+    }
+
+    if (event_id && event_id !== 'all') {
+      params.push(event_id);
+      conditions.push(`ar.event_id = $${params.length}`);
+    }
+
+    if (search) {
+      params.push(`%${search}%`);
+      conditions.push(`(s.address ILIKE $${params.length} OR u.name ILIKE $${params.length} OR de.event_name ILIKE $${params.length})`);
+    }
+
+    if (conditions.length > 0) {
+      query += ` WHERE ${conditions.join(' AND ')}`;
     }
 
     query += ` ORDER BY ar.timestamp DESC`;

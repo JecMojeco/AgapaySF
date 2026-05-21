@@ -24,9 +24,11 @@ import {
   LayoutDashboard,
   FileText
 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 export function AssessmentStepper() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [step, setStep] = useState(1);
   const [events, setEvents] = useState([]);
   const [zones, setZones] = useState([]);
@@ -37,7 +39,7 @@ export function AssessmentStepper() {
   
   const [formData, setFormData] = useState({
     event_id: "",
-    zone_id: "",
+    zone_id: user?.role === 'Kagawad' ? user.zone_id?.toString() : "",
     structure_id: "",
     selectedStructure: null,
     damage_level: "",
@@ -46,6 +48,8 @@ export function AssessmentStepper() {
   });
 
   const { toast } = useToast();
+
+  const isKagawad = user?.role === 'Kagawad';
 
   useEffect(() => {
     const fetchData = async () => {
@@ -57,6 +61,11 @@ export function AssessmentStepper() {
         ]);
         setEvents(eventsData);
         setZones(zonesData);
+        
+        // Ensure zone_id is set for Kagawad if it wasn't available at initialization
+        if (isKagawad && user?.zone_id) {
+          setFormData(prev => ({ ...prev, zone_id: user.zone_id.toString() }));
+        }
       } catch (error) {
         toast({ title: "Error", description: "Failed to load initial data", variant: "destructive" });
       } finally {
@@ -64,7 +73,7 @@ export function AssessmentStepper() {
       }
     };
     fetchData();
-  }, []);
+  }, [user, isKagawad, toast]);
 
   const handleNext = () => {
     if (step === 1) {
@@ -163,20 +172,36 @@ export function AssessmentStepper() {
 
       <div className="space-y-2">
         <Label htmlFor="zone">Barangay Zone</Label>
-        <Select
-          value={formData.zone_id}
-          onValueChange={(value) => setFormData({ ...formData, zone_id: value })}
-        >
-          <SelectTrigger id="zone">
-            <SelectValue placeholder="Select zone" />
-          </SelectTrigger>
-          <SelectContent>
-            {zones.map(z => (
-              <SelectItem key={z.zone_id} value={z.zone_id.toString()}>{z.zone_name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <p className="text-xs text-muted-foreground">Geographic area of the structure.</p>
+        {!isKagawad ? (
+          <>
+            <Select
+              value={formData.zone_id}
+              onValueChange={(value) => setFormData({ ...formData, zone_id: value })}
+            >
+              <SelectTrigger id="zone">
+                <SelectValue placeholder="Select zone" />
+              </SelectTrigger>
+              <SelectContent>
+                {zones.map(z => (
+                  <SelectItem key={z.zone_id} value={z.zone_id.toString()}>{z.zone_name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">Geographic area of the structure.</p>
+          </>
+        ) : (
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-primary/5 border border-primary/20">
+            <div className="p-2 bg-primary/10 rounded-full">
+              <MapPin className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-primary">
+                {zones.find(z => z.zone_id.toString() === user?.zone_id?.toString())?.zone_name || `Zone ${user?.zone_id}`}
+              </p>
+              <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-tight">Your Area of Responsibility</p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

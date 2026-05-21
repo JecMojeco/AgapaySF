@@ -106,6 +106,18 @@ const getMe = async (req, res) => {
     const result = await db.query('SELECT user_id, name, role, status FROM "USER" WHERE user_id = $1', [req.session.user_id]);
     const user = result.rows[0];
     if (!user) return res.status(404).json({ error: 'User not found' });
+    
+    if (user.role === 'Kagawad') {
+      // Re-populate session zone_id if missing (e.g. server restart)
+      if (!req.session.zone_id) {
+        const zoneResult = await db.query('SELECT zone_id FROM BARANGAY_ZONE WHERE assigned_kagawad = $1', [user.user_id]);
+        if (zoneResult.rows.length > 0) {
+          req.session.zone_id = zoneResult.rows[0].zone_id;
+        }
+      }
+      user.zone_id = req.session.zone_id;
+    }
+    
     res.status(200).json({ user });
   } catch (error) {
     console.error(error);
