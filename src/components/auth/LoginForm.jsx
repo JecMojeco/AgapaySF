@@ -7,7 +7,7 @@ import { Logo } from "@/components/ui/Logo";
 import { api } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export function LoginForm() {
   const [contactNumber, setContactNumber] = useState("");
@@ -30,7 +30,6 @@ export function LoginForm() {
       });
     }
 
-    // Login form should not restrict password format to allow all valid passwords
     if (!password) {
       return toast({
         title: "Login Failed",
@@ -94,10 +93,16 @@ export function LoginForm() {
             />
           </div>
         </CardContent>
-        <CardFooter>
+        <CardFooter className="flex flex-col gap-4">
           <Button className="w-full" type="submit" disabled={isLoading}>
             {isLoading ? "Logging in..." : "Login"}
           </Button>
+          <p className="text-center text-xs text-muted-foreground">
+            Don't have an account?{" "}
+            <Link to="/register" className="text-primary font-bold hover:underline">
+              Register here
+            </Link>
+          </p>
         </CardFooter>
       </form>
     </Card>

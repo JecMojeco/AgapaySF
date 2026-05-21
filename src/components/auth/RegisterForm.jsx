@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/ui/Logo";
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export function RegisterForm() {
   const [formData, setFormData] = useState({
@@ -137,10 +137,16 @@ export function RegisterForm() {
             />
           </div>
         </CardContent>
-        <CardFooter>
+        <CardFooter className="flex flex-col gap-4">
           <Button className="w-full" type="submit" disabled={isLoading}>
             {isLoading ? "Registering..." : "Register"}
           </Button>
+          <p className="text-center text-xs text-muted-foreground">
+            Already have an account?{" "}
+            <Link to="/login" className="text-primary font-bold hover:underline">
+              Login here
+            </Link>
+          </p>
         </CardFooter>
       </form>
     </Card>
