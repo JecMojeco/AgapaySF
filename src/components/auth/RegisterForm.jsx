@@ -21,7 +21,11 @@ export function RegisterForm() {
 
   const handleChange = (e) => {
     const { id, value } = e.target;
-    setFormData((prev) => ({ ...prev, [id]: value }));
+    if (id === "contact_number") {
+      setFormData((prev) => ({ ...prev, [id]: value.replace(/\D/g, "").slice(0, 11) }));
+    } else {
+      setFormData((prev) => ({ ...prev, [id]: value }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -37,11 +41,12 @@ export function RegisterForm() {
       });
     }
 
-    const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+    // Password must be at least 8 characters and include letters, numbers, and special characters
+    const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (!passwordRegex.test(formData.password)) {
       return toast({
         title: "Registration Failed",
-        description: "Password must be at least 8 characters long and contain both letters and numbers.",
+        description: "Password must be at least 8 characters long and contain letters, numbers, and at least one special character (@$!%*?&).",
         variant: "destructive",
       });
     }
@@ -107,6 +112,7 @@ export function RegisterForm() {
               placeholder="09XXXXXXXXX"
               value={formData.contact_number}
               onChange={handleChange}
+              maxLength={11}
               required
             />
           </div>

@@ -78,12 +78,12 @@ export function DashboardPage() {
           <div className="flex items-center gap-3">
             <AlertTriangle className="text-red-600 w-6 h-6" />
             <div>
-              <h3 className="font-bold text-red-900">ACTIVE EVENT: {summary.activeEvent.name}</h3>
-              <p className="text-sm text-red-700">Status: {summary.activeEvent.status}</p>
+              <h3 className="font-bold text-red-900">ACTIVE EVENT: {summary.activeEvent.event_name}</h3>
+              <p className="text-sm text-red-700">Status: Active</p>
             </div>
           </div>
           <Button variant="outline" size="sm" className="bg-white border-red-200 text-red-700 hover:bg-red-50" asChild>
-            <Link to="/events">Manage Event</Link>
+            <Link to="/admin/events">Manage Event</Link>
           </Button>
         </div>
       )}
@@ -109,7 +109,7 @@ export function DashboardPage() {
                     <div className="flex-1">
                       <p className="text-sm font-medium">{item.detail}</p>
                       <p className="text-xs text-muted-foreground">
-                        {item.user} • {item.timestamp ? formatDistanceToNow(new Date(item.timestamp), { addSuffix: true }) : 'just now'}
+                        {item.user_name} • {item.action_time ? formatDistanceToNow(new Date(item.action_time), { addSuffix: true }) : 'just now'}
                       </p>
                     </div>
                   </div>
@@ -129,7 +129,7 @@ export function DashboardPage() {
             </CardHeader>
             <CardContent className="grid grid-cols-2 gap-3">
               {(user?.role === 'Admin' || user?.role === 'Kagawad') && (
-                <Link to="/assessment/new" className="group">
+                <Link to="/assessments" className="group">
                   <div className="flex flex-col items-center justify-center p-4 rounded-xl border border-outline-variant/30 bg-surface-container-low/30 hover:bg-primary/5 hover:border-primary/30 transition-all text-center h-full">
                     <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-2 group-hover:scale-110 transition-transform">
                       <FileText className="w-4 h-4" />

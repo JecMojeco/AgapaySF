@@ -14,10 +14,11 @@ const register = async (req, res) => {
       return res.status(400).json({ error: 'Invalid contact number. Must be 11 digits starting with 09.' });
     }
 
-    const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+    // Password must be at least 8 chars, include letters, numbers, and special chars
+    const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (!passwordRegex.test(password)) {
       return res.status(400).json({
-        error: 'Password must be at least 8 characters long and contain both letters and numbers.'
+        error: 'Password must be at least 8 characters long and contain letters, numbers, and at least one special character (@$!%*?&).'
       });
     }
 

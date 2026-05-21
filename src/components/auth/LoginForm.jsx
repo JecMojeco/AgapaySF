@@ -19,6 +19,26 @@ export function LoginForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validation
+    const contactRegex = /^09\d{9}$/;
+    if (!contactRegex.test(contactNumber)) {
+      return toast({
+        title: "Login Failed",
+        description: "Invalid contact number. Must be 11 digits starting with 09.",
+        variant: "destructive",
+      });
+    }
+
+    // Login form should not restrict password format to allow all valid passwords
+    if (!password) {
+      return toast({
+        title: "Login Failed",
+        description: "Password is required.",
+        variant: "destructive",
+      });
+    }
+
     setIsLoading(true);
 
     try {
@@ -30,7 +50,7 @@ export function LoginForm() {
       login(data.user);
       toast({
         title: "Login Successful",
-        description: `Welcome back, ${data.user.name}!`,
+        description: "Welcome back, " + data.user.name + "!",
       });
       navigate("/dashboard");
     } catch (error) {
@@ -58,7 +78,8 @@ export function LoginForm() {
               id="contact"
               placeholder="09XXXXXXXXX"
               value={contactNumber}
-              onChange={(e) => setContactNumber(e.target.value)}
+              onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, "").slice(0, 11))}
+              maxLength={11}
               required
             />
           </div>
