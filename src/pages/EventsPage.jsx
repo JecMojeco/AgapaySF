@@ -7,6 +7,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AlertTriangle, Plus, Calendar } from "lucide-react";
 
 export function EventsPage() {
   const [events, setEvents] = useState([]);
@@ -24,6 +26,7 @@ export function EventsPage() {
 
   const fetchEvents = useCallback(async () => {
     try {
+      setLoading(true);
       const data = await api('/events');
       setEvents(data);
     } catch (error) {
@@ -89,54 +92,85 @@ export function EventsPage() {
     }
   };
 
-  if (loading) return <div className="p-8 text-center text-muted-foreground">Loading disaster events...</div>;
-
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Disaster Events</h1>
-        <Button onClick={() => handleOpenDialog()}>Add Event</Button>
+    <div className="p-6 animate-in fade-in duration-700 space-y-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-on-surface">Disaster Events</h1>
+          <p className="text-muted-foreground">Track and manage disaster occurrences in the barangay.</p>
+        </div>
+        <Button onClick={() => handleOpenDialog()}>
+          <Plus className="w-4 h-4 mr-2" />
+          Add Event
+        </Button>
       </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Event Name</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead>Start Date</TableHead>
-            <TableHead>End Date</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {events.map(event => (
-            <TableRow key={event.event_id}>
-              <TableCell className="font-medium">{event.event_name}</TableCell>
-              <TableCell>{event.disaster_type}</TableCell>
-              <TableCell>{new Date(event.date_started).toLocaleDateString()}</TableCell>
-              <TableCell>{event.date_ended ? new Date(event.date_ended).toLocaleDateString() : "-"}</TableCell>
-              <TableCell>
-                {!event.date_ended ? (
-                  <Badge className="bg-green-500">Ongoing</Badge>
-                ) : (
-                  <Badge variant="secondary">Completed</Badge>
-                )}
-              </TableCell>
-              <TableCell className="text-right">
-                <Button variant="outline" size="sm" onClick={() => handleOpenDialog(event)}>Edit</Button>
-              </TableCell>
-            </TableRow>
-          ))}
-          {events.length === 0 && (
-            <TableRow>
-              <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">
-                No events recorded.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+      <Card className="border-outline-variant/30 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <AlertTriangle className="h-5 w-5 text-primary" />
+            Events
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Event Name</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Start Date</TableHead>
+                <TableHead>End Date</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">
+                    Loading events...
+                  </TableCell>
+                </TableRow>
+              ) : events.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">
+                    No events recorded.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                events.map(event => (
+                  <TableRow key={event.event_id}>
+                    <TableCell className="font-medium">{event.event_name}</TableCell>
+                    <TableCell>{event.disaster_type}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1.5 text-sm">
+                        <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+                        {new Date(event.date_started).toLocaleDateString()}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1.5 text-sm">
+                        <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+                        {event.date_ended ? new Date(event.date_ended).toLocaleDateString() : "-"}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {!event.date_ended ? (
+                        <Badge className="bg-[#2E7D32] hover:bg-[#2E7D32]/90">Ongoing</Badge>
+                      ) : (
+                        <Badge variant="secondary">Completed</Badge>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="sm" onClick={() => handleOpenDialog(event)}>Edit</Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent>

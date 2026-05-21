@@ -6,7 +6,7 @@ export function Logo({ className }) {
     <img 
       src={logoUrl} 
       alt="AgapaySF Logo" 
-      className={cn("h-8 w-auto", className)} 
+      className={cn("w-auto h-8", className)} 
     />
   );
 }

@@ -20,13 +20,6 @@ import {
   DialogTitle, 
   DialogFooter 
 } from "@/components/ui/dialog";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { 
   Search, 
@@ -47,7 +40,6 @@ export function EvacuationLogPage() {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isDepartureOpen, setIsDepartureOpen] = useState(false);
   const [selectedLog, setSelectedLog] = useState(null);
-  const [events, setEvents] = useState([]);
   const { toast } = useToast();
 
   // Form states
@@ -57,13 +49,11 @@ export function EvacuationLogPage() {
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      const [logsData, eventsData] = await Promise.all([
-        api("/evacuations"),
-        api("/events")
+      const [logsData] = await Promise.all([
+        api("/evacuations")
       ]);
       setLogs(logsData);
-      setEvents(eventsData.filter(e => e.status === 'Active' || e.status === 'Ongoing'));
-    } catch (err) {
+    } catch {
       toast({
         title: "Error",
         description: "Failed to fetch evacuation data.",

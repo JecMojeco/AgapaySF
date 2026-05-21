@@ -140,7 +140,7 @@ export function ReportsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-[60vh]">
+      <div className="p-6 animate-in fade-in duration-700 h-[60vh] flex items-center justify-center">
         <div className="flex flex-col items-center gap-2">
           <Activity className="h-8 w-8 animate-spin text-primary" />
           <p className="text-sm font-medium text-muted-foreground">Generating reports...</p>

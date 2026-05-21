@@ -94,10 +94,10 @@ export default function AssessmentHistoryPage() {
   const serverBaseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '');
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 animate-in fade-in duration-700 space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Assessment History</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-on-surface">Assessment History</h1>
           <p className="text-muted-foreground">
             View and manage damage assessment reports.
           </p>

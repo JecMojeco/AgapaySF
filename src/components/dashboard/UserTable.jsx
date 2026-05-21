@@ -16,13 +16,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import { AlertTriangle, Trash2, ShieldAlert } from "lucide-react";
 
 export function UserTable() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pendingRoles, setPendingRoles] = useState({});
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
 
   const fetchUsers = async () => {
@@ -33,7 +45,6 @@ export function UserTable() {
         api("/users"),
       ]);
 
-      // Merge: prefer pending data if IDs match, though they should be distinct based on status
       const merged = [...pendingUsers];
       allUsers.forEach((u) => {
         if (!merged.find((p) => p.user_id === u.user_id)) {
@@ -122,7 +133,11 @@ export function UserTable() {
   const handleDeactivate = async (userId) => {
     try {
       await api(`/users/${userId}/deactivate`, { method: "PATCH" });
-      toast({ title: "Success", description: "User deactivated" });
+      toast({ 
+        title: "User Deactivated", 
+        description: "This user can no longer access the system until reactivated.",
+        variant: "warning"
+      });
       fetchUsers();
     } catch (error) {
       toast({
@@ -136,7 +151,7 @@ export function UserTable() {
   const handleReactivate = async (userId) => {
     try {
       await api(`/users/${userId}/reactivate`, { method: "PATCH" });
-      toast({ title: "Success", description: "User reactivated" });
+      toast({ title: "Success", description: "User access restored" });
       fetchUsers();
     } catch (error) {
       toast({
@@ -147,11 +162,23 @@ export function UserTable() {
     }
   };
 
-  const handleDelete = async (userId) => {
-    if (!confirm("Are you sure you want to permanently delete this user?")) return;
+  const confirmDelete = (user) => {
+    setUserToDelete(user);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!userToDelete) return;
+    setIsDeleting(true);
     try {
-      await api(`/users/${userId}`, { method: "DELETE" });
-      toast({ title: "Success", description: "User deleted permanently" });
+      await api(`/users/${userToDelete.user_id}`, { method: "DELETE" });
+      toast({ 
+        title: "Permanently Deleted", 
+        description: `${userToDelete.name} has been removed from the system.`,
+        variant: "destructive" 
+      });
+      setIsDeleteDialogOpen(false);
+      setUserToDelete(null);
       fetchUsers();
     } catch (error) {
       toast({
@@ -159,6 +186,8 @@ export function UserTable() {
         description: error.message,
         variant: "destructive",
       });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -254,7 +283,9 @@ export function UserTable() {
                     size="sm"
                     variant="destructive"
                     onClick={() => handleDeactivate(user.user_id)}
+                    className="gap-2"
                   >
+                    <ShieldAlert className="w-4 h-4" />
                     Deactivate
                   </Button>
                 )}
@@ -269,9 +300,11 @@ export function UserTable() {
                     <Button
                       size="sm"
                       variant="destructive"
-                      onClick={() => handleDelete(user.user_id)}
+                      onClick={() => confirmDelete(user)}
+                      className="gap-2"
                     >
-                      Delete Permanently
+                      <Trash2 className="w-4 h-4" />
+                      Delete
                     </Button>
                   </>
                 )}
@@ -280,6 +313,40 @@ export function UserTable() {
           ))}
         </TableBody>
       </Table>
+
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader className="flex flex-col items-center text-center">
+            <div className="w-12 h-12 bg-destructive/10 text-destructive rounded-full flex items-center justify-center mb-2">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+            <DialogTitle className="text-xl">Permanent Deletion</DialogTitle>
+            <DialogDescription className="pt-2">
+              Are you sure you want to delete <span className="font-bold text-on-surface">{userToDelete?.name}</span>? 
+              This action is <span className="text-destructive font-bold underline">permanent</span> and cannot be undone. 
+              The user will lose all access and their profile will be removed.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex sm:flex-col gap-2 mt-4">
+            <Button 
+              variant="destructive" 
+              onClick={handleDelete} 
+              disabled={isDeleting}
+              className="w-full h-11 text-sm font-bold gap-2"
+            >
+              {isDeleting ? "Deleting..." : <><Trash2 className="w-4 h-4" /> Confirm Permanent Deletion</>}
+            </Button>
+            <Button 
+              variant="ghost" 
+              onClick={() => setIsDeleteDialogOpen(false)}
+              disabled={isDeleting}
+              className="w-full h-11 text-xs text-muted-foreground"
+            >
+              Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

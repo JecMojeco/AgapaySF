@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -14,7 +14,6 @@ import {
   ChevronLeft, 
   Plus, 
   User, 
-  Calendar, 
   CheckCircle2, 
   Users,
   RotateCcw
@@ -44,8 +43,8 @@ export function EvacuationStepper({ onSuccess }) {
       try {
         setLoading(true);
         const eventsData = await api("/events");
-        setEvents(eventsData.filter(e => e.status === 'Active' || e.status === 'Ongoing'));
-      } catch (error) {
+        setEvents(eventsData.filter(e => !e.date_ended));
+      } catch {
         toast({ title: "Error", description: "Failed to load events", variant: "destructive" });
       } finally {
         setLoading(false);

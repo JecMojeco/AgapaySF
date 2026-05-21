@@ -2,21 +2,28 @@ const db = require('../config/db');
 
 const getAllStructures = async (req, res) => {
   try {
-    const { search } = req.query;
+    const { search, zone_id } = req.query;
     let query = `
-      SELECT s.*, r.surname as owner_surname, r.first_name as owner_first_name
+      SELECT s.*, r.surname as owner_surname, r.first_name as owner_first_name, z.zone_name
       FROM STRUCTURE s
       JOIN RESIDENT r ON s.owner_id = r.resident_id
+      JOIN BARANGAY_ZONE z ON r.zone_id = z.zone_id
     `;
     const params = [];
+    const conditions = [];
 
     if (search) {
-      query += `
-        WHERE s.address ILIKE $1 
-        OR r.surname ILIKE $1 
-        OR r.first_name ILIKE $1
-      `;
       params.push(`%${search}%`);
+      conditions.push(`(s.address ILIKE $${params.length} OR r.surname ILIKE $${params.length} OR r.first_name ILIKE $${params.length})`);
+    }
+
+    if (zone_id) {
+      params.push(zone_id);
+      conditions.push(`r.zone_id = $${params.length}`);
+    }
+
+    if (conditions.length > 0) {
+      query += ` WHERE ${conditions.join(' AND ')}`;
     }
 
     query += ` ORDER BY s.structure_id ASC`;

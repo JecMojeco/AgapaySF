@@ -6,7 +6,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Trash2 } from "lucide-react";
+import { Trash2, MapPin, Plus, User } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   Select, 
   SelectContent, 
@@ -124,47 +125,76 @@ export function ZonesPage() {
     }
   };
 
-  if (loading) return <div className="p-8 text-center text-muted-foreground">Loading barangay zones...</div>;
-
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Barangay Zones</h1>
-        <Button onClick={() => handleOpenDialog()}>Add Zone</Button>
+    <div className="p-6 animate-in fade-in duration-700 space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-on-surface">Barangay Zones</h1>
+          <p className="text-muted-foreground">Manage administrative zones and assigned officials.</p>
+        </div>
+        <Button onClick={() => handleOpenDialog()}>
+          <Plus className="w-4 h-4 mr-2" />
+          Add Zone
+        </Button>
       </div>
 
-      <div className="border rounded-md">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Zone Name</TableHead>
-              <TableHead>Assigned Kagawad</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {zones.map(zone => (
-              <TableRow key={zone.zone_id}>
-                <TableCell className="font-medium">{zone.zone_name}</TableCell>
-                <TableCell>{zone.kagawad_name || "Unassigned"}</TableCell>
-                <TableCell className="text-right space-x-2">
-                  <Button variant="outline" size="sm" onClick={() => handleOpenDialog(zone)}>Assign Kagawad</Button>
-                  <Button variant="ghost" size="sm" className="text-destructive hover:bg-destructive/10" onClick={() => handleOpenDeleteDialog(zone)}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-            {zones.length === 0 && (
+      <Card className="border-outline-variant/30 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <MapPin className="h-5 w-5 text-primary" />
+            Zones
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={3} className="text-center py-10 text-muted-foreground">
-                  No zones recorded.
-                </TableCell>
+                <TableHead>Zone Name</TableHead>
+                <TableHead>Assigned Kagawad</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+            </TableHeader>
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={3} className="text-center py-10 text-muted-foreground">
+                    Loading zones...
+                  </TableCell>
+                </TableRow>
+              ) : zones.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={3} className="text-center py-10 text-muted-foreground">
+                    No zones recorded.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                zones.map(zone => (
+                  <TableRow key={zone.zone_id}>
+                    <TableCell className="font-medium">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-primary" />
+                        {zone.zone_name}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <User className="h-4 w-4 text-muted-foreground" />
+                        {zone.kagawad_name || "Unassigned"}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right space-x-2">
+                      <Button variant="ghost" size="sm" onClick={() => handleOpenDialog(zone)}>Assign Kagawad</Button>
+                      <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleOpenDeleteDialog(zone)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
       {/* Add/Edit Dialog */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
