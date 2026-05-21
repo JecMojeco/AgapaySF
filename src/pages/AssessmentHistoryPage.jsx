@@ -25,6 +25,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Search, Filter, ImageIcon, Plus, MapPin, Calendar, User, Loader2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -265,16 +266,19 @@ export default function AssessmentHistoryPage() {
                     <TableCell>
                       {a.photo_url ? (
                         <Dialog>
-                          <Button variant="ghost" size="sm" asChild className="p-0 h-10 w-10 overflow-hidden rounded-md border group">
-                            <button>
+                          <DialogTrigger asChild>
+                            <Button variant="ghost" size="sm" className="p-0 h-10 w-10 overflow-hidden rounded-md border group">
                               <img 
                                 src={`${serverBaseUrl}${a.photo_url}`} 
                                 alt="Damage preview" 
                                 className="object-cover h-full w-full group-hover:scale-110 transition-transform"
                               />
-                            </button>
-                          </Button>
+                            </Button>
+                          </DialogTrigger>
                           <DialogContent className="max-w-3xl">
+                            <DialogHeader>
+                              <DialogTitle>Damage Assessment Photo</DialogTitle>
+                            </DialogHeader>
                             <div className="mt-4 overflow-hidden rounded-lg border">
                               <img 
                                 src={`${serverBaseUrl}${a.photo_url}`} 
