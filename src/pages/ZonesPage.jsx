@@ -3,9 +3,10 @@ import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Trash2 } from "lucide-react";
 import { 
   Select, 
   SelectContent, 
@@ -19,7 +20,9 @@ export function ZonesPage() {
   const [kagawads, setKagawads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [editingZone, setEditingZone] = useState(null);
+  const [zoneToDelete, setZoneToDelete] = useState(null);
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
@@ -34,8 +37,8 @@ export function ZonesPage() {
         api('/zones'),
         api('/users?role=Kagawad')
       ]);
-      setZones(zonesData);
-      setKagawads(kagawadsData);
+      setZones(Array.isArray(zonesData) ? zonesData : []);
+      setKagawads(Array.isArray(kagawadsData) ? kagawadsData : []);
     } catch (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } finally {
@@ -64,6 +67,11 @@ export function ZonesPage() {
     setIsOpen(true);
   };
 
+  const handleOpenDeleteDialog = (zone) => {
+    setZoneToDelete(zone);
+    setIsDeleteOpen(true);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -77,8 +85,8 @@ export function ZonesPage() {
     }
 
     try {
-      const method = editingZone ? 'PUT' : 'POST';
-      const endpoint = editingZone ? `/zones/${editingZone.zone_id}` : '/zones';
+      const method = editingZone ? 'PATCH' : 'POST';
+      const endpoint = editingZone ? '/zones/' + editingZone.zone_id : '/zones';
       
       await api(endpoint, {
         method,
@@ -90,9 +98,26 @@ export function ZonesPage() {
 
       toast({ 
         title: "Success", 
-        description: `Zone ${editingZone ? 'updated' : 'created'} successfully` 
+        description: "Zone " + (editingZone ? "updated" : "created") + " successfully" 
       });
       setIsOpen(false);
+      fetchData();
+    } catch (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!zoneToDelete) return;
+
+    try {
+      await api('/zones/' + zoneToDelete.zone_id, {
+        method: 'DELETE'
+      });
+
+      toast({ title: "Success", description: "Zone deleted successfully" });
+      setIsDeleteOpen(false);
+      setZoneToDelete(null);
       fetchData();
     } catch (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -122,8 +147,11 @@ export function ZonesPage() {
               <TableRow key={zone.zone_id}>
                 <TableCell className="font-medium">{zone.zone_name}</TableCell>
                 <TableCell>{zone.kagawad_name || "Unassigned"}</TableCell>
-                <TableCell className="text-right">
+                <TableCell className="text-right space-x-2">
                   <Button variant="outline" size="sm" onClick={() => handleOpenDialog(zone)}>Assign Kagawad</Button>
+                  <Button variant="ghost" size="sm" className="text-destructive hover:bg-destructive/10" onClick={() => handleOpenDeleteDialog(zone)}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -138,6 +166,7 @@ export function ZonesPage() {
         </Table>
       </div>
 
+      {/* Add/Edit Dialog */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent>
           <form onSubmit={handleSubmit}>
@@ -177,6 +206,22 @@ export function ZonesPage() {
               <Button type="submit">{editingZone ? 'Update' : 'Create'} Zone</Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-destructive">Are you absolutely sure?</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. This will permanently delete the zone <strong>{zoneToDelete?.zone_name}</strong>.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setIsDeleteOpen(false)}>Cancel</Button>
+            <Button variant="destructive" onClick={handleDelete}>Delete Zone</Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

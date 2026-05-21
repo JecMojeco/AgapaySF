@@ -35,8 +35,6 @@ function App() {
               <Route path="/admin/users" element={<UserManagementPage />} />
               <Route path="/admin/events" element={<EventsPage />} />
               <Route path="/admin/zones" element={<ZonesPage />} />
-              <Route path="/reports/damage" element={<ReportsPage />} />
-              <Route path="/reports/evacuation" element={<ReportsPage />} />
               <Route path="/reports" element={<ReportsPage />} />
             </Route>
 

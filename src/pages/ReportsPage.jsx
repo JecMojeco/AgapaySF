@@ -25,13 +25,11 @@ import {
   TrendingUp, 
   FileText,
   Activity,
-  Calendar,
-  Printer
+  Calendar
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
-import { ReportPrintTemplate } from "@/components/dashboard/ReportPrintTemplate";
 
 export function ReportsPage() {
   const [summary, setSummary] = useState(null);
@@ -50,15 +48,15 @@ export function ReportsPage() {
     try {
       setReportLoading(true);
       const [damage, evacuation, dDetails, eDetails] = await Promise.all([
-        api(`/reports/damage/${eventId}`),
-        api(`/reports/evacuation/${eventId}`),
-        api(`/reports/damage/${eventId}/details`),
-        api(`/reports/evacuation/${eventId}/details`)
+        api('/reports/damage/' + eventId).catch(() => []),
+        api('/reports/evacuation/' + eventId).catch(() => []),
+        api('/reports/damage/' + eventId + '/details').catch(() => []),
+        api('/reports/evacuation/' + eventId + '/details').catch(() => [])
       ]);
-      setDamageData(damage);
-      setEvacuationData(evacuation);
-      setDamageDetails(dDetails);
-      setEvacuationDetails(eDetails);
+      setDamageData(Array.isArray(damage) ? damage : []);
+      setEvacuationData(Array.isArray(evacuation) ? evacuation : []);
+      setDamageDetails(Array.isArray(dDetails) ? dDetails : []);
+      setEvacuationDetails(Array.isArray(eDetails) ? eDetails : []);
     } catch (err) {
       console.error("Failed to fetch event reports:", err);
     } finally {
@@ -74,8 +72,8 @@ export function ReportsPage() {
         api("/events")
       ]);
       setSummary(summaryData);
-      setEvents(eventsData);
-      if (eventsData.length > 0) {
+      setEvents(Array.isArray(eventsData) ? eventsData : []);
+      if (Array.isArray(eventsData) && eventsData.length > 0) {
         const activeEvent = eventsData.find(e => e.status === 'Active' || e.status === 'Ongoing') || eventsData[0];
         setSelectedEvent(activeEvent.event_id.toString());
       }
@@ -105,11 +103,11 @@ export function ReportsPage() {
     return Math.round((count / total) * 100);
   };
 
-  const totalDamageReports = damageData.reduce((acc, curr) => acc + parseInt(curr.count), 0);
-  const totalEvacuationLogs = evacuationData.reduce((acc, curr) => acc + parseInt(curr.count), 0);
+  const totalDamageReports = Array.isArray(damageData) ? damageData.reduce((acc, curr) => acc + (parseInt(curr?.count) || 0), 0) : 0;
+  const totalEvacuationLogs = Array.isArray(evacuationData) ? evacuationData.reduce((acc, curr) => acc + (parseInt(curr?.count) || 0), 0) : 0;
 
   const handleExportCSV = (data, filename) => {
-    if (!data || data.length === 0) {
+    if (!Array.isArray(data) || data.length === 0) {
       toast({
         title: "No data",
         description: "There is no data to export.",
@@ -124,7 +122,7 @@ export function ReportsPage() {
       ...data.map(row => headers.map(header => {
         const value = row[header] === null || row[header] === undefined ? '' : row[header];
         const escaped = ('' + value).replace(/"/g, '""');
-        return `"${escaped}"`;
+        return '"' + escaped + '"';
       }).join(','))
     ];
     
@@ -133,7 +131,7 @@ export function ReportsPage() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `${filename}_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', filename + '_' + new Date().toISOString().split('T')[0] + '.csv');
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
@@ -152,16 +150,12 @@ export function ReportsPage() {
   }
 
   return (
-    <div className="p-6 animate-in fade-in duration-700 space-y-8 print-area print:hidden">
+    <div className="p-6 animate-in fade-in duration-700 space-y-8">
       <div className="flex justify-between items-start">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-on-surface">System Reports</h1>
           <p className="text-muted-foreground">Comprehensive overview of disaster response operations.</p>
         </div>
-        <Button onClick={() => window.print()} variant="outline" className="print:hidden">
-          <Printer className="h-4 w-4 mr-2" />
-          Print PDF Summary
-        </Button>
       </div>
 
       {/* Summary Cards */}
@@ -218,22 +212,19 @@ export function ReportsPage() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-bold uppercase tracking-wider text-on-surface-variant/70">Event-Specific Insights</h2>
-          <div className="w-64 print:hidden">
+          <div className="w-64">
             <Select value={selectedEvent} onValueChange={setSelectedEvent}>
               <SelectTrigger className="h-9">
                 <SelectValue placeholder="Select event" />
               </SelectTrigger>
               <SelectContent>
-                {events.map(event => (
+                {Array.isArray(events) && events.map(event => (
                   <SelectItem key={event.event_id} value={event.event_id.toString()}>
                     {event.event_name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-          </div>
-          <div className="hidden print:block font-bold">
-            Event: {events.find(e => e.event_id.toString() === selectedEvent)?.event_name}
           </div>
         </div>
 
@@ -266,24 +257,24 @@ export function ReportsPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4 pt-2">
-                    {damageData.length === 0 ? (
+                    {!Array.isArray(damageData) || damageData.length === 0 ? (
                       <p className="text-sm text-center py-10 text-muted-foreground">No damage reports for this event.</p>
                     ) : (
                       damageData.map((item, idx) => {
-                        const percentage = getPercentage(item.count, totalDamageReports);
+                        const percentage = getPercentage(item?.count, totalDamageReports);
                         return (
                           <div key={idx} className="space-y-1.5">
                             <div className="flex justify-between text-xs font-bold">
-                              <span className="text-on-surface-variant">{item.damage_level} Damage</span>
-                              <span className="text-on-surface">{item.count} reports ({percentage}%)</span>
+                              <span className="text-on-surface-variant">{item?.damage_level} Damage</span>
+                              <span className="text-on-surface">{item?.count} reports ({percentage}%)</span>
                             </div>
                             <div className="h-2 w-full bg-surface-container-high rounded-full overflow-hidden">
                               <div 
-                                className={`h-full rounded-full ${
-                                  item.damage_level === 'Total' ? 'bg-destructive' : 
-                                  item.damage_level === 'Partial' ? 'bg-orange-500' : 'bg-primary'
-                                }`}
-                                style={{ width: `${percentage}%` }}
+                                className={"h-full rounded-full " + (
+                                  item?.damage_level === 'Total' ? 'bg-destructive' : 
+                                  item?.damage_level === 'Partial' ? 'bg-orange-500' : 'bg-primary'
+                                )}
+                                style={{ width: percentage + "%" }}
                               />
                             </div>
                           </div>
@@ -305,23 +296,23 @@ export function ReportsPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4 pt-2">
-                    {evacuationData.length === 0 ? (
+                    {!Array.isArray(evacuationData) || evacuationData.length === 0 ? (
                       <p className="text-sm text-center py-10 text-muted-foreground">No evacuation logs for this event.</p>
                     ) : (
                       evacuationData.map((item, idx) => {
-                        const percentage = getPercentage(item.count, totalEvacuationLogs);
+                        const percentage = getPercentage(item?.count, totalEvacuationLogs);
                         return (
                           <div key={idx} className="space-y-1.5">
                             <div className="flex justify-between text-xs font-bold">
-                              <span className="text-on-surface-variant">{item.status}</span>
-                              <span className="text-on-surface">{item.count} persons ({percentage}%)</span>
+                              <span className="text-on-surface-variant">{item?.status}</span>
+                              <span className="text-on-surface">{item?.count} persons ({percentage}%)</span>
                             </div>
                             <div className="h-2 w-full bg-surface-container-high rounded-full overflow-hidden">
                               <div 
-                                className={`h-full rounded-full ${
-                                  item.status === 'Evacuated' ? 'bg-orange-500' : 'bg-green-500'
-                                }`}
-                                style={{ width: `${percentage}%` }}
+                                className={"h-full rounded-full " + (
+                                  item?.status === 'Evacuated' ? 'bg-orange-500' : 'bg-green-500'
+                                )}
+                                style={{ width: percentage + "%" }}
                               />
                             </div>
                           </div>
@@ -352,24 +343,24 @@ export function ReportsPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {damageDetails.length === 0 ? (
+                    {!Array.isArray(damageDetails) || damageDetails.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">No detailed records found.</TableCell>
                       </TableRow>
                     ) : (
                       damageDetails.map((detail, idx) => (
                         <TableRow key={idx}>
-                          <TableCell className="font-medium">{detail.address}</TableCell>
-                          <TableCell>{detail.structure_type}</TableCell>
+                          <TableCell className="font-medium">{detail?.address}</TableCell>
+                          <TableCell>{detail?.structure_type}</TableCell>
                           <TableCell>
-                            <Badge variant={detail.damage_level === 'Total' ? 'destructive' : 'outline'}>
-                              {detail.damage_level}
+                            <Badge variant={detail?.damage_level === 'Total' ? 'destructive' : 'outline'}>
+                              {detail?.damage_level}
                             </Badge>
                           </TableCell>
-                          <TableCell>{detail.reporter_name}</TableCell>
-                          <TableCell>{detail.zone_name}</TableCell>
+                          <TableCell>{detail?.reporter_name}</TableCell>
+                          <TableCell>{detail?.zone_name}</TableCell>
                           <TableCell className="text-muted-foreground">
-                            {new Date(detail.created_at).toLocaleString()}
+                            {detail?.created_at ? new Date(detail.created_at).toLocaleString() : '-'}
                           </TableCell>
                         </TableRow>
                       ))
@@ -399,26 +390,26 @@ export function ReportsPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {evacuationDetails.length === 0 ? (
+                    {!Array.isArray(evacuationDetails) || evacuationDetails.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={7} className="text-center py-10 text-muted-foreground">No detailed records found.</TableCell>
                       </TableRow>
                     ) : (
                       evacuationDetails.map((detail, idx) => (
                         <TableRow key={idx}>
-                          <TableCell className="font-medium">{detail.resident_name}</TableCell>
-                          <TableCell>{detail.zone_name}</TableCell>
-                          <TableCell>{detail.family_size}</TableCell>
-                          <TableCell>{detail.vulnerable_count}</TableCell>
+                          <TableCell className="font-medium">{detail?.resident_name}</TableCell>
+                          <TableCell>{detail?.zone_name}</TableCell>
+                          <TableCell>{detail?.family_size}</TableCell>
+                          <TableCell>{detail?.vulnerable_count}</TableCell>
                           <TableCell className="text-muted-foreground">
-                            {detail.arrival_date ? new Date(detail.arrival_date).toLocaleString() : '-'}
+                            {detail?.arrival_date ? new Date(detail.arrival_date).toLocaleString() : '-'}
                           </TableCell>
                           <TableCell className="text-muted-foreground">
-                            {detail.departure_date ? new Date(detail.departure_date).toLocaleString() : '-'}
+                            {detail?.departure_date ? new Date(detail.departure_date).toLocaleString() : '-'}
                           </TableCell>
                           <TableCell>
-                            <Badge variant={detail.status === 'Evacuated' ? 'secondary' : 'default'}>
-                              {detail.status}
+                            <Badge variant={detail?.status === 'Evacuated' ? 'secondary' : 'default'}>
+                              {detail?.status}
                             </Badge>
                           </TableCell>
                         </TableRow>
@@ -432,7 +423,7 @@ export function ReportsPage() {
         )}
       </div>
 
-      <Card className="border-none bg-surface-container-low shadow-sm rounded-xl overflow-hidden print:hidden">
+      <Card className="border-none bg-surface-container-low shadow-sm rounded-xl overflow-hidden">
         <CardContent className="p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-white rounded-lg shadow-sm text-primary">
@@ -440,7 +431,7 @@ export function ReportsPage() {
             </div>
             <div>
               <h3 className="text-sm font-bold text-on-surface leading-none">Need detailed datasets?</h3>
-              <p className="text-xs text-on-surface-variant/60 mt-1">Export full reports as CSV or PDF for external processing.</p>
+              <p className="text-xs text-on-surface-variant/60 mt-1">Export full reports as CSV for external processing.</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -460,27 +451,9 @@ export function ReportsPage() {
             >
               Evacuation CSV
             </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="h-8 text-[10px] font-bold uppercase"
-              onClick={() => window.print()}
-            >
-              PDF Summary
-            </Button>
           </div>
         </CardContent>
       </Card>
-      
-      <ReportPrintTemplate 
-        summary={summary}
-        events={events}
-        selectedEvent={selectedEvent}
-        damageData={damageData}
-        evacuationData={evacuationData}
-        damageDetails={damageDetails}
-        evacuationDetails={evacuationDetails}
-      />
     </div>
   );
 }
