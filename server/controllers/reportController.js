@@ -42,8 +42,8 @@ exports.getEvacuationReport = async (req, res) => {
 
 exports.getSummaryStats = async (req, res) => {
   try {
-    const activeEventQuery = await pool.query('SELECT * FROM DISASTER_EVENT WHERE date_ended IS NULL ORDER BY date_started DESC LIMIT 1');
-    const activeEvent = activeEventQuery.rows[0] || null;
+    const activeEventsQuery = await pool.query('SELECT * FROM DISASTER_EVENT WHERE date_ended IS NULL ORDER BY date_started DESC');
+    const activeEvents = activeEventsQuery.rows;
 
     const residentsCount = await pool.query('SELECT COUNT(*) FROM RESIDENT');
     const evacuationsCount = await pool.query('SELECT COUNT(*) FROM EVACUATION_LOG WHERE status = \'Evacuated\'');
@@ -51,7 +51,7 @@ exports.getSummaryStats = async (req, res) => {
     const eventsCount = await pool.query('SELECT COUNT(*) FROM DISASTER_EVENT');
 
     res.json({
-      activeEvent,
+      activeEvents,
       totalResidents: parseInt(residentsCount.rows[0].count),
       activeEvacuations: parseInt(evacuationsCount.rows[0].count),
       totalAssessments: parseInt(assessmentsCount.rows[0].count),

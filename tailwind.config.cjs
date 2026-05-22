@@ -83,7 +83,8 @@ module.exports = {
         sm: "calc(var(--radius) - 4px)",
       },
       spacing: {
-        'container-padding': '1rem',
+        'container-padding': 'var(--container-padding)',
+        'section-gap': 'var(--section-gap)',
         'stack-gap': '1.5rem',
         'element-gap': '1rem',
         'section-padding': '1.5rem',

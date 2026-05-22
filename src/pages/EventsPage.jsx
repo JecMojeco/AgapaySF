@@ -73,8 +73,10 @@ export function EventsPage() {
       const method = editingEvent ? 'PUT' : 'POST';
       const endpoint = editingEvent ? `/events/${editingEvent.event_id}` : '/events';
       
-      const payload = { ...formData };
-      if (!payload.date_ended) delete payload.date_ended;
+      const payload = { 
+        ...formData,
+        date_ended: formData.date_ended || null // Send null instead of deleting
+      };
 
       await api(endpoint, {
         method,

@@ -73,26 +73,30 @@ export function DashboardPage() {
         </div>
       </div>
 
-      {summary?.activeEvent && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3 w-full sm:w-auto">
-            <div className="p-2 bg-red-100 rounded-lg">
-              <AlertTriangle className="text-red-600 w-5 h-5 sm:w-6 sm:h-6" />
+      <StatsGrid stats={summary} />
+
+      {summary?.activeEvents?.length > 0 && (
+        <div className="space-y-4">
+          {summary.activeEvents.map((event) => (
+            <div key={event.event_id} className="bg-red-50 border border-red-200 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                <div className="p-2 bg-red-100 rounded-lg">
+                  <AlertTriangle className="text-red-600 w-5 h-5 sm:w-6 sm:h-6" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-red-900 text-sm sm:text-base uppercase tracking-tight">ACTIVE EVENT: {event.event_name}</h3>
+                  <p className="text-xs sm:text-sm text-red-700 font-medium">Monitoring in progress</p>
+                </div>
+              </div>
+              <Button variant="outline" size="sm" className="w-full sm:w-auto bg-white border-red-200 text-red-700 hover:bg-red-50 font-bold" asChild>
+                <Link to="/admin/events">Manage Event</Link>
+              </Button>
             </div>
-            <div>
-              <h3 className="font-bold text-red-900 text-sm sm:text-base uppercase tracking-tight">ACTIVE EVENT: {summary.activeEvent.event_name}</h3>
-              <p className="text-xs sm:text-sm text-red-700 font-medium">Monitoring in progress</p>
-            </div>
-          </div>
-          <Button variant="outline" size="sm" className="w-full sm:w-auto bg-white border-red-200 text-red-700 hover:bg-red-50 font-bold" asChild>
-            <Link to="/admin/events">Manage Event</Link>
-          </Button>
+          ))}
         </div>
       )}
 
-      <StatsGrid stats={summary} />
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
           <Card className="border-outline-variant/30 shadow-sm bg-white overflow-hidden rounded-xl">
             <CardHeader className="pb-3 border-b border-outline-variant/10">
