@@ -9,13 +9,17 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertTriangle, Plus, Calendar } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 export function EventsPage() {
+  const { user } = useAuth();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
   const { toast } = useToast();
+
+  const isAdmin = user?.role === 'Admin';
 
   const [formData, setFormData] = useState({
     event_name: "",
@@ -70,7 +74,7 @@ export function EventsPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const method = editingEvent ? 'PUT' : 'POST';
+      const method = editingEvent ? 'PATCH' : 'POST';
       const endpoint = editingEvent ? `/events/${editingEvent.event_id}` : '/events';
       
       const payload = { 
@@ -101,10 +105,12 @@ export function EventsPage() {
           <h1 className="text-2xl font-bold tracking-tight text-on-surface">Disaster Events</h1>
           <p className="text-muted-foreground">Track and manage disaster occurrences in the barangay.</p>
         </div>
-        <Button onClick={() => handleOpenDialog()}>
-          <Plus className="w-4 h-4 mr-2" />
-          Add Event
-        </Button>
+        {isAdmin && (
+          <Button onClick={() => handleOpenDialog()}>
+            <Plus className="w-4 h-4 mr-2" />
+            Add Event
+          </Button>
+        )}
       </div>
 
       <Card className="border-outline-variant/30 shadow-sm">
@@ -164,7 +170,9 @@ export function EventsPage() {
                       )}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" onClick={() => handleOpenDialog(event)}>Edit</Button>
+                      {isAdmin && (
+                        <Button variant="ghost" size="sm" onClick={() => handleOpenDialog(event)}>Edit</Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))
