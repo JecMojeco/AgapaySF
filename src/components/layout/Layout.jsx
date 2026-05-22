@@ -36,7 +36,7 @@ export function Layout() {
 
       <div className="flex flex-1 overflow-hidden">
         <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-        <main className="flex-1 overflow-y-auto px-container-padding py-section-padding pb-24 md:pb-8">
+        <main className="flex-1 overflow-y-auto px-[var(--container-padding)] py-[var(--section-gap)] pb-24 md:pb-8">
           <div className="max-w-7xl mx-auto">
             <Outlet />
           </div>
