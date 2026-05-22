@@ -4,11 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertTriangle, Plus, Calendar } from "lucide-react";
+import { AlertTriangle, Plus, Calendar, Trash2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 export function EventsPage() {
@@ -17,6 +18,9 @@ export function EventsPage() {
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [eventToDelete, setZoneToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
 
   const isAdmin = user?.role === 'Admin';
@@ -69,6 +73,26 @@ export function EventsPage() {
       });
     }
     setIsOpen(true);
+  };
+
+  const handleOpenDelete = (event) => {
+    setZoneToDelete(event);
+    setIsDeleteOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!eventToDelete) return;
+    setIsDeleting(true);
+    try {
+      await api(`/events/${eventToDelete.event_id}`, { method: 'DELETE' });
+      toast({ title: "Success", description: "Event deleted successfully" });
+      setIsDeleteOpen(false);
+      fetchEvents();
+    } catch (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -171,7 +195,17 @@ export function EventsPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       {isAdmin && (
-                        <Button variant="ghost" size="sm" onClick={() => handleOpenDialog(event)}>Edit</Button>
+                        <div className="flex justify-end gap-2">
+                          <Button variant="ghost" size="sm" onClick={() => handleOpenDialog(event)}>Edit</Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => handleOpenDelete(event)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
                       )}
                     </TableCell>
                   </TableRow>
@@ -234,6 +268,23 @@ export function EventsPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        isOpen={isDeleteOpen}
+        onOpenChange={setIsDeleteOpen}
+        title="Delete Disaster Event"
+        description={
+          <span>
+            Are you sure you want to delete <span className="font-bold text-foreground">{eventToDelete?.event_name}</span>? 
+            This action is <span className="text-destructive font-bold underline">permanent</span> and cannot be undone.
+          </span>
+        }
+        confirmText="Confirm Permanent Deletion"
+        onConfirm={handleDelete}
+        variant="destructive"
+        isLoading={isDeleting}
+        icon={Trash2}
+      />
     </div>
   );
 }

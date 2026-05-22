@@ -182,11 +182,26 @@ export function ZonesPage() {
                         {zone.kagawad_name || "Unassigned"}
                       </div>
                     </TableCell>
-                    <TableCell className="text-right space-x-2">
-                      <Button variant="ghost" size="sm" onClick={() => handleOpenDialog(zone)}>Assign Kagawad</Button>
-                      <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleOpenDeleteDialog(zone)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleOpenDialog(zone)}
+                          className="bg-primary/5 text-primary border-primary/20 hover:bg-primary/10 font-bold gap-2"
+                        >
+                          <User className="w-3.5 h-3.5" />
+                          Assign Kagawad
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-destructive hover:text-destructive hover:bg-destructive/10" 
+                          onClick={() => handleOpenDeleteDialog(zone)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))

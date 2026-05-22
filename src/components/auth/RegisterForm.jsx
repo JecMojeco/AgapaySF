@@ -33,10 +33,12 @@ export function RegisterForm() {
 
     // Validation
     const contactRegex = /^09\d{9}$/;
-    if (!contactRegex.test(formData.contact_number)) {
+    const isPlaceholder = formData.contact_number.includes('X') || /^090+$/.test(formData.contact_number);
+    
+    if (!contactRegex.test(formData.contact_number) || isPlaceholder) {
       return toast({
         title: "Registration Failed",
-        description: "Invalid contact number. Must be 11 digits starting with 09.",
+        description: "Invalid contact number. Must be 11 digits starting with 09 (e.g., 09123456789).",
         variant: "destructive",
       });
     }

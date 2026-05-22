@@ -10,8 +10,8 @@ const register = async (req, res) => {
 
     // Validation
     const contactRegex = /^09\d{9}$/;
-    if (!contactRegex.test(contact_number)) {
-      return res.status(400).json({ error: 'Invalid contact number. Must be 11 digits starting with 09.' });
+    if (!contactRegex.test(contact_number) || /^090+$/.test(contact_number)) {
+      return res.status(400).json({ error: 'Invalid contact number format. Must be 11 digits starting with 09.' });
     }
 
     // Password must be at least 8 chars, include letters, numbers, and special chars
