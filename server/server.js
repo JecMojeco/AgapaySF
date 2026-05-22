@@ -18,7 +18,11 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:5173', // Assuming Vite frontend
+  origin: [
+    'http://localhost:5173',
+    'https://pregame-custodian-munchkin.ngrok-free.dev',
+    /\.ngrok-free\.app$/
+  ],
   credentials: true,
 }));
 app.use(express.json());
