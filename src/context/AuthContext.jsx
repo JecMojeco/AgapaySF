@@ -39,10 +39,32 @@ export function AuthProvider({ children }) {
     localStorage.setItem('user', JSON.stringify(userData));
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
+  const logout = async () => {
+    try {
+      await api('/auth/logout', { method: 'POST' });
+    } catch (error) {
+      console.error('Logout API failed:', error);
+    } finally {
+      setUser(null);
+      localStorage.removeItem('user');
+    }
   };
+
+  // Global handler for auth failures (like deactivation)
+  useEffect(() => {
+    const handleAuthError = (event) => {
+      if (event.detail?.status === 401 || event.detail?.status === 403) {
+        if (user) {
+          setUser(null);
+          localStorage.removeItem('user');
+          window.location.href = '/login';
+        }
+      }
+    };
+
+    window.addEventListener('api-auth-error', handleAuthError);
+    return () => window.removeEventListener('api-auth-error', handleAuthError);
+  }, [user]);
 
   return (
     <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user, loading }}>

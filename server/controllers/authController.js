@@ -62,7 +62,7 @@ const login = async (req, res) => {
     }
 
     if (user.status === 'INACTIVE') {
-      return res.status(403).json({ error: 'Your account is inactive.' });
+      return res.status(403).json({ error: 'Your account has been deactivated. Please contact the administrator.' });
     }
 
     req.session.user_id = user.user_id;

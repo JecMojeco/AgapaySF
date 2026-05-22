@@ -31,6 +31,14 @@ export const api = async (endpoint, options = {}) => {
 
   if (!response.ok) {
     console.error(`API Error ${response.status}:`, data);
+    
+    // Dispatch event for AuthContext to handle session loss/deactivation
+    if (response.status === 401 || response.status === 403) {
+      window.dispatchEvent(new CustomEvent('api-auth-error', { 
+        detail: { status: response.status, error: data.error } 
+      }));
+    }
+
     throw new Error(data.error || `API request failed with status ${response.status}`);
   }
 
