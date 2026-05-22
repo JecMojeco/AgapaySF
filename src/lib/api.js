@@ -3,7 +3,10 @@ const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 export const api = async (endpoint, options = {}) => {
   const url = `${BASE_URL}${endpoint}`;
   
-  const headers = { ...options.headers };
+  const headers = { 
+    ...options.headers,
+    'ngrok-skip-browser-warning': 'true'
+  };
   
   // Don't set Content-Type if it's FormData, let browser handle it with boundary
   if (!(options.body instanceof FormData)) {

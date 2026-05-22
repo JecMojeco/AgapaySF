@@ -27,13 +27,14 @@ const register = async (req, res) => {
     const values = [name, contact_number, hashedPassword];
 
     const result = await db.query(query, values);
+    console.log('User registered successfully:', result.rows[0].user_id);
     res.status(201).json({ message: 'Registration submitted successfully', user: result.rows[0] });
   } catch (error) {
+    console.error('Registration Error:', error);
     if (error.code === '23505') { // unique violation
       return res.status(409).json({ error: 'Contact number already registered' });
     }
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: `Internal server error: ${error.message}` });
   }
 };
 
