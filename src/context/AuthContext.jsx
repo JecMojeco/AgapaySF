@@ -32,6 +32,16 @@ export function AuthProvider({ children }) {
     };
 
     checkSession();
+
+    // Re-verify session when tab becomes visible after inactivity
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        checkSession();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
 
   const login = (userData) => {
