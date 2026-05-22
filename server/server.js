@@ -58,6 +58,15 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'ok', message: 'AgapaySF API is running' });
 });
 
+// Serve frontend build in production or for testing
+const distPath = path.join(__dirname, '..', 'dist');
+app.use(express.static(distPath));
+
+// Handle SPA routing - redirect all other requests to index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(distPath, 'index.html'));
+});
+
 if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

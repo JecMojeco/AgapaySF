@@ -30,7 +30,8 @@ export const api = async (endpoint, options = {}) => {
   }
 
   if (!response.ok) {
-    throw new Error(data.error || 'API request failed');
+    console.error(`API Error ${response.status}:`, data);
+    throw new Error(data.error || `API request failed with status ${response.status}`);
   }
 
   return data;
