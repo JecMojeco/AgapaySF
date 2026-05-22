@@ -18,6 +18,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertTriangle, Plus, Calendar, Trash2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { formatDate } from "@/lib/utils";
 
 export function EventsPage() {
   const { user } = useAuth();
@@ -61,7 +62,12 @@ export function EventsPage() {
       
       const formatDataDate = (dateStr) => {
         if (!dateStr) return "";
-        return dateStr.includes('T') ? dateStr.split('T')[0] : dateStr;
+        // If it's a full ISO string, take the date part
+        if (dateStr.includes('T')) {
+          return dateStr.split('T')[0];
+        }
+        // If it's already a YYYY-MM-DD string, return as is
+        return dateStr;
       };
 
       setFormData({
@@ -110,7 +116,7 @@ export function EventsPage() {
       
       const payload = { 
         ...formData,
-        date_ended: formData.date_ended || null // Send null instead of deleting
+        date_ended: formData.date_ended || null // Send null instead of empty string
       };
 
       await api(endpoint, {
@@ -184,13 +190,13 @@ export function EventsPage() {
                     <TableCell>
                       <div className="flex items-center gap-1.5 text-sm">
                         <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
-                        {new Date(event.date_started).toLocaleDateString()}
+                        {formatDate(event.date_started)}
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1.5 text-sm">
                         <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
-                        {event.date_ended ? new Date(event.date_ended).toLocaleDateString() : "-"}
+                        {formatDate(event.date_ended)}
                       </div>
                     </TableCell>
                     <TableCell>

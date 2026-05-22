@@ -284,14 +284,14 @@ export function EvacuationLogPage() {
                     <TableCell>
                       <div className="flex items-center gap-1.5 text-xs">
                         <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
-                        {format(new Date(log.arrival_date), "MMM d, yyyy p")}
+                        {log.arrival_date ? format(new Date(log.arrival_date), "PPp") : "-"}
                       </div>
                     </TableCell>
                     <TableCell>
                       {log.departure_date ? (
                         <div className="flex items-center gap-1.5 text-xs">
                           <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
-                          {format(new Date(log.departure_date), "MMM d, yyyy p")}
+                          {format(new Date(log.departure_date), "PPp")}
                         </div>
                       ) : (
                         <span className="text-xs text-muted-foreground italic">Still in shelter</span>

@@ -1,3 +1,4 @@
+
 # Design Spec: Disaster Events, Registration, and Zone UI Improvements
 
 **Goal:** Enhance security, data integrity, and usability across three key modules.

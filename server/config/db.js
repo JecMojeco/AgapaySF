@@ -1,5 +1,10 @@
-const { Pool } = require('pg');
+const { Pool, types } = require('pg');
 require('dotenv').config();
+
+// Force DATE types (OID 1082) to be returned as raw strings (YYYY-MM-DD)
+// This prevents node-postgres from converting them to UTC Date objects
+// which cause timezone-shifting bugs on the frontend.
+types.setTypeParser(1082, (val) => val);
 
 const pool = new Pool({
   user: process.env.DB_USER,

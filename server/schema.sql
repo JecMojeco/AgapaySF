@@ -71,7 +71,7 @@ CREATE TABLE EVACUATION_LOG (
     evacuation_id SERIAL PRIMARY KEY,
     resident_id INTEGER NOT NULL REFERENCES RESIDENT(resident_id),
     event_id INTEGER NOT NULL REFERENCES DISASTER_EVENT(event_id),
-    arrival_date DATE NOT NULL,
-    departure_date DATE,
+    arrival_date TIMESTAMP NOT NULL,
+    departure_date TIMESTAMP,
     status evacuation_status NOT NULL DEFAULT 'Evacuated'
 );

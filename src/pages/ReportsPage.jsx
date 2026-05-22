@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { api } from "@/lib/api";
+import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { 
   Select, 
@@ -402,10 +403,10 @@ export function ReportsPage() {
                           <TableCell>{detail?.family_size}</TableCell>
                           <TableCell>{detail?.vulnerable_count}</TableCell>
                           <TableCell className="text-muted-foreground">
-                            {detail?.arrival_date ? new Date(detail.arrival_date).toLocaleString() : '-'}
+                            {detail?.arrival_date ? format(new Date(detail.arrival_date), 'PPp') : '-'}
                           </TableCell>
                           <TableCell className="text-muted-foreground">
-                            {detail?.departure_date ? new Date(detail.departure_date).toLocaleString() : '-'}
+                            {detail?.departure_date ? format(new Date(detail.departure_date), 'PPp') : '-'}
                           </TableCell>
                           <TableCell>
                             <Badge variant={detail?.status === 'Evacuated' ? 'secondary' : 'default'}>
