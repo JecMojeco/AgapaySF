@@ -8,6 +8,13 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertTriangle, Plus, Calendar, Trash2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
@@ -234,13 +241,22 @@ export function EventsPage() {
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="disaster_type">Disaster Type</Label>
-                <Input 
-                  id="disaster_type" 
-                  placeholder="e.g. Typhoon, Flood, Fire"
-                  value={formData.disaster_type}
-                  onChange={e => setFormData({...formData, disaster_type: e.target.value})}
-                  required 
-                />
+                <Select 
+                  value={formData.disaster_type} 
+                  onValueChange={value => setFormData({...formData, disaster_type: value})}
+                  required
+                >
+                  <SelectTrigger id="disaster_type">
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Flood">Flood</SelectItem>
+                    <SelectItem value="Typhoon">Typhoon</SelectItem>
+                    <SelectItem value="Fire">Fire</SelectItem>
+                    <SelectItem value="Earthquake">Earthquake</SelectItem>
+                    <SelectItem value="Landslide">Landslide</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="date_started">Start Date</Label>
