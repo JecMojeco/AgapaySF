@@ -16,25 +16,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogDescription,
-} from "@/components/ui/dialog";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
-import { AlertTriangle, Trash2, ShieldAlert } from "lucide-react";
+import { AlertTriangle, Trash2, ShieldAlert, XCircle } from "lucide-react";
 
 export function UserTable() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pendingRoles, setPendingRoles] = useState({});
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [userToDelete, setUserToDelete] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [confirmConfig, setConfirmConfig] = useState({
+    isOpen: false,
+    title: "",
+    description: "",
+    confirmText: "",
+    onConfirm: () => {},
+    variant: "default",
+    icon: null,
+  });
+  const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
 
   const fetchUsers = async () => {
@@ -100,9 +100,11 @@ export function UserTable() {
   };
 
   const handleReject = async (userId) => {
+    setIsProcessing(true);
     try {
       await api(`/users/${userId}/reject`, { method: "PATCH" });
       toast({ title: "Success", description: "User rejected" });
+      setConfirmConfig((prev) => ({ ...prev, isOpen: false }));
       fetchUsers();
     } catch (error) {
       toast({
@@ -110,6 +112,8 @@ export function UserTable() {
         description: error.message,
         variant: "destructive",
       });
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -131,6 +135,7 @@ export function UserTable() {
   };
 
   const handleDeactivate = async (userId) => {
+    setIsProcessing(true);
     try {
       await api(`/users/${userId}/deactivate`, { method: "PATCH" });
       toast({ 
@@ -138,6 +143,7 @@ export function UserTable() {
         description: "This user can no longer access the system until reactivated.",
         variant: "warning"
       });
+      setConfirmConfig((prev) => ({ ...prev, isOpen: false }));
       fetchUsers();
     } catch (error) {
       toast({
@@ -145,6 +151,8 @@ export function UserTable() {
         description: error.message,
         variant: "destructive",
       });
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -162,23 +170,16 @@ export function UserTable() {
     }
   };
 
-  const confirmDelete = (user) => {
-    setUserToDelete(user);
-    setIsDeleteDialogOpen(true);
-  };
-
-  const handleDelete = async () => {
-    if (!userToDelete) return;
-    setIsDeleting(true);
+  const handleDelete = async (userId) => {
+    setIsProcessing(true);
     try {
-      await api(`/users/${userToDelete.user_id}`, { method: "DELETE" });
+      await api(`/users/${userId}`, { method: "DELETE" });
       toast({ 
         title: "Permanently Deleted", 
-        description: `${userToDelete.name} has been removed from the system.`,
+        description: "User has been removed from the system.",
         variant: "destructive" 
       });
-      setIsDeleteDialogOpen(false);
-      setUserToDelete(null);
+      setConfirmConfig((prev) => ({ ...prev, isOpen: false }));
       fetchUsers();
     } catch (error) {
       toast({
@@ -187,7 +188,60 @@ export function UserTable() {
         variant: "destructive",
       });
     } finally {
-      setIsDeleting(false);
+      setIsProcessing(false);
+    }
+  };
+
+  const openConfirm = (type, user) => {
+    switch (type) {
+      case "deactivate":
+        setConfirmConfig({
+          isOpen: true,
+          title: "Deactivate User",
+          description: (
+            <span>
+              Are you sure you want to deactivate <span className="font-bold text-foreground">{user.name}</span>? 
+              They will lose all system access immediately.
+            </span>
+          ),
+          confirmText: "Deactivate User",
+          onConfirm: () => handleDeactivate(user.user_id),
+          variant: "warning",
+          icon: ShieldAlert,
+        });
+        break;
+      case "delete":
+        setConfirmConfig({
+          isOpen: true,
+          title: "Permanent Deletion",
+          description: (
+            <span>
+              Are you sure you want to delete <span className="font-bold text-foreground">{user.name}</span>? 
+              This action is <span className="text-destructive font-bold underline">permanent</span> and cannot be undone.
+            </span>
+          ),
+          confirmText: "Confirm Permanent Deletion",
+          onConfirm: () => handleDelete(user.user_id),
+          variant: "destructive",
+          icon: Trash2,
+        });
+        break;
+      case "reject":
+        setConfirmConfig({
+          isOpen: true,
+          title: "Reject Registration",
+          description: (
+            <span>
+              Are you sure you want to reject the registration of <span className="font-bold text-foreground">{user.name}</span>? 
+              This will remove their pending request.
+            </span>
+          ),
+          confirmText: "Reject Request",
+          onConfirm: () => handleReject(user.user_id),
+          variant: "danger",
+          icon: XCircle,
+        });
+        break;
     }
   };
 
@@ -272,7 +326,7 @@ export function UserTable() {
                     <Button
                       size="sm"
                       variant="destructive"
-                      onClick={() => handleReject(user.user_id)}
+                      onClick={() => openConfirm("reject", user)}
                     >
                       Reject
                     </Button>
@@ -282,7 +336,7 @@ export function UserTable() {
                   <Button
                     size="sm"
                     variant="destructive"
-                    onClick={() => handleDeactivate(user.user_id)}
+                    onClick={() => openConfirm("deactivate", user)}
                     className="gap-2"
                   >
                     <ShieldAlert className="w-4 h-4" />
@@ -300,7 +354,7 @@ export function UserTable() {
                     <Button
                       size="sm"
                       variant="destructive"
-                      onClick={() => confirmDelete(user)}
+                      onClick={() => openConfirm("delete", user)}
                       className="gap-2"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -314,39 +368,17 @@ export function UserTable() {
         </TableBody>
       </Table>
 
-      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader className="flex flex-col items-center text-center">
-            <div className="w-12 h-12 bg-destructive/10 text-destructive rounded-full flex items-center justify-center mb-2">
-              <AlertTriangle className="w-6 h-6" />
-            </div>
-            <DialogTitle className="text-xl">Permanent Deletion</DialogTitle>
-            <DialogDescription className="pt-2">
-              Are you sure you want to delete <span className="font-bold text-on-surface">{userToDelete?.name}</span>? 
-              This action is <span className="text-destructive font-bold underline">permanent</span> and cannot be undone. 
-              The user will lose all access and their profile will be removed.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="flex sm:flex-col gap-2 mt-4">
-            <Button 
-              variant="destructive" 
-              onClick={handleDelete} 
-              disabled={isDeleting}
-              className="w-full h-11 text-sm font-bold gap-2"
-            >
-              {isDeleting ? "Deleting..." : <><Trash2 className="w-4 h-4" /> Confirm Permanent Deletion</>}
-            </Button>
-            <Button 
-              variant="ghost" 
-              onClick={() => setIsDeleteDialogOpen(false)}
-              disabled={isDeleting}
-              className="w-full h-11 text-xs text-muted-foreground"
-            >
-              Cancel
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConfirmDialog
+        isOpen={confirmConfig.isOpen}
+        onOpenChange={(open) => setConfirmConfig(prev => ({ ...prev, isOpen: open }))}
+        title={confirmConfig.title}
+        description={confirmConfig.description}
+        confirmText={confirmConfig.confirmText}
+        onConfirm={confirmConfig.onConfirm}
+        variant={confirmConfig.variant}
+        icon={confirmConfig.icon}
+        isLoading={isProcessing}
+      />
     </div>
   );
 }
